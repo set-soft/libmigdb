@@ -253,13 +253,18 @@ mi_frames *MIDebugger::SelectTargetPID(const char *exec, int pid)
  mode=dmPID;
  preRun=true;
 
- /* Tell gdb to load symbols from the local copy. */
- if (!gmi_file_symbol_file(h,exec))
-    return NULL;
-
  mi_frames *res=gmi_target_attach(h,pid);
  if (res)
+   {
     state=target_specified;
+
+    /* Tell gdb to load symbols from the local copy. */
+    if (!gmi_file_symbol_file(h,exec))
+      {
+       mi_free_frames(res);
+       return NULL;
+      }
+   }
 
  return res;
 }

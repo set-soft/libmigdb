@@ -7,7 +7,14 @@
   Comments:
   This module handles the dialog with gdb, including starting and stopping
 gdb.@p
-  
+
+GDB Bug workaround for "file -readnow": I tried to workaround a bug using
+it but looks like this option also have bugs!!!! so I have to use the
+command line option --readnow.
+It also have a bug!!!! when the binary is changed and gdb must reload it
+this option is ignored. So it looks like we have no solution but 3 gdb bugs
+in a row.
+
 ***************************************************************************/
 
 #define _GNU_SOURCE
@@ -279,7 +286,7 @@ mi_h *mi_connect_local()
  h->pid=fork();
  if (h->pid==0)
    {/* We are the child. */
-    char *argv[4];
+    char *argv[5];
     /* Connect stdin/out to the pipes. */
     dup2(h->to_gdb[0],STDIN_FILENO);
     dup2(h->from_gdb[1],STDOUT_FILENO);
@@ -287,7 +294,8 @@ mi_h *mi_connect_local()
     argv[0]=gdb_exe;
     argv[1]="--interpreter=mi";
     argv[2]="--quiet";
-    argv[3]=0;
+    argv[3]="--readnow";
+    argv[4]=0;
     execvp(argv[0],argv);
     /* We get here only if exec failed. */
     _exit(127);

@@ -1,4 +1,11 @@
-$Log$
+$Log$.
+Revision 1.5  2004/07/28 21:09:40  set
+* Fixed: Some mess in the bkpts structure. The "times" field is how many
+times we hit a breakpoint, just information. The real value is "ignore".
+* Fixed: Missing parse of the "cond" field for breakpoints.
+* Added: A C++ function to set a breakpoint from a mi_bkpt structure. It
+supports the four modes to specify a location.
+
 Revision 1.4  2004/07/25 22:58:07  set
 * Added: More fields to the mi_bkpt structure.
 
