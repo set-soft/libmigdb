@@ -28,6 +28,7 @@ MIDebugger::MIDebugger()
  aux_tty=NULL;
  waitingTempBkpt=0;
  targetEndian=enUnknown;
+ targetArch=arUnknown;
 }
 
 /**[txh]********************************************************************
@@ -132,6 +133,7 @@ int MIDebugger::SelectTargetTTY(const char *exec, const char *args,
     return 0;
 
  targetEndian=enUnknown;
+ targetArch=arUnknown;
  mode=m;
  if (!gmi_set_exec(h,exec,args))
     return 0;
@@ -228,6 +230,7 @@ int MIDebugger::SelectTargetRemote(const char *exec, const char *rparams,
  mode=dmRemote;
  preRun=true;
  targetEndian=enUnknown;
+ targetArch=arUnknown;
  if (rtype==NULL)
     rtype="extended-remote";
 
@@ -256,6 +259,7 @@ mi_frames *MIDebugger::SelectTargetPID(const char *exec, int pid)
  mode=dmPID;
  preRun=false;
  targetEndian=enUnknown;
+ targetArch=arUnknown;
 
  mi_frames *res=gmi_target_attach(h,pid);
  if (res)
@@ -1033,6 +1037,25 @@ MIDebugger::endianType MIDebugger::GetTargetEndian()
     free(end);
    }
  return targetEndian;
+}
+
+MIDebugger::archType MIDebugger::GetTargetArchitecture()
+{
+ if (targetArch!=arUnknown)
+    return targetArch;
+ if (state!=stopped && state!=target_specified)
+    return arUnknown;
+
+ char *end=Show("architecture");
+ if (end)
+   {
+    if (strstr(end,"i386"))
+       targetArch=arIA32;
+    else if (strstr(end,"sparc"))
+       targetArch=arSPARC;
+    free(end);
+   }
+ return targetArch;
 }
 
 int MIDebugger::GetErrorNumberSt()

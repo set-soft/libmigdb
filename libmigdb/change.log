@@ -1,4 +1,10 @@
-$Log$.
+$Log$
+Revision 1.19  2004/09/07 19:56:28  set
+* Fixed: Lack of error report when we failed to create the temporal files
+to spawn an X terminal.
+* Fixed: Now we test if the X terminal and gdb binary are there and report
+proper errors if they are missing.
+
 Revision 1.18  2004/09/06 17:13:11  set
 * Added: Functions to workaround another bug in gdb. I reported it and it
 was named "mi/1770". Affects gdb 6.x.

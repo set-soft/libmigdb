@@ -697,6 +697,8 @@ public:
  enum eState { disconnected, connected, target_specified, running, stopped };
  enum dMode  { dmX11, dmLinux, dmRemote, dmPID };
  enum endianType { enUnknown, enLittle, enBig };
+ // Currently tested architectures
+ enum archType { arUnknown, arIA32, arSPARC, arUnsupported };
 
  int Connect(bool remote=false); /* remote is currently ignored. */
  int Disconnect();
@@ -884,6 +886,7 @@ public:
  int UpdateRegisters(mi_chg_reg *regs);
 
  endianType GetTargetEndian();
+ archType   GetTargetArchitecture();
  eState GetState() { return state; }
 
  /* Some wrappers */
@@ -924,6 +927,7 @@ protected:
  eState state;
  dMode mode;
  endianType targetEndian;
+ archType targetArch;
  bool  preRun;  // Remote targets starts running but outside main.
  mi_h *h;
  mi_aux_term *aux_tty;
