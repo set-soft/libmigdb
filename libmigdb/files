@@ -8,6 +8,7 @@ libmigdb/src/*.h
 libmigdb/files
 libmigdb/DJGPP.why
 libmigdb/GPL-license
+libmigdb/Makefile
 libmigdb/README
 libmigdb/compress.sh
 libmigdb/change.log

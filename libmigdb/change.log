@@ -1,4 +1,9 @@
-$Log$
+$Log$.
+Revision 1.20  2004/09/08 18:09:46  set
+* Added: C++ member to find and cache the architecture. Currently supported
+architectures are IA32 (x86) and SPARC. They are the only archs I have at
+hand.
+
 Revision 1.19  2004/09/07 19:56:28  set
 * Fixed: Lack of error report when we failed to create the temporal files
 to spawn an X terminal.
