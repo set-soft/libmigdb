@@ -445,13 +445,8 @@ mi_output *mi_get_rrecord(mi_output *r)
  return r;
 }
 
-mi_results *mi_get_var(mi_output *res, const char *var)
+mi_results *mi_get_var_r(mi_results *r, const char *var)
 {
- mi_results *r;
-
- if (!res)
-    return NULL;
- r=res->c;
  while (r)
    {
     if (strcmp(r->var,var)==0)
@@ -459,6 +454,13 @@ mi_results *mi_get_var(mi_output *res, const char *var)
     r=r->next;
    }
  return NULL;
+}
+
+mi_results *mi_get_var(mi_output *res, const char *var)
+{
+ if (!res)
+    return NULL;
+ return mi_get_var_r(res->c,var);
 }
 
 int mi_get_async_stop_reason(mi_output *r, char **reason)
@@ -1429,3 +1431,51 @@ mi_stop *mi_res_stop(mi_h *h)
  return stop;
 }
 
+int mi_get_read_memory(mi_h *h, unsigned char *dest, unsigned ws, int *na,
+                       unsigned long *addr)
+{
+ char *end;
+ mi_results *res=mi_res_done_var(h,"memory"), *r;
+ int ok=0;
+
+ *na=0;
+ r=res;
+ if (r && r->type==t_list && ws==1)
+   {
+    r=r->v.rs;
+    if (r->type!=t_tuple)
+      {
+       mi_free_results(res);
+       return 0;
+      }
+    r=r->v.rs;
+    while (r)
+      {
+       if (r->type==t_list && strcmp(r->var,"data")==0)
+         {
+          mi_results *data=r->v.rs;
+          ok++;
+          if (data && data->type==t_const &&
+              strcmp(data->v.cstr,"N/A")==0)
+             *na=1;
+          else
+             while (data)
+               {
+                if (data->type==t_const)
+                   *(dest++)=strtol(data->v.cstr,&end,0);
+                data=data->next;
+               }
+         }
+       else if (r->type==t_const && strcmp(r->var,"addr")==0)
+         {
+          ok++;
+          if (addr)
+             *addr=strtoul(r->v.cstr,&end,0);
+         }
+       r=r->next;
+      }
+
+   }
+ mi_free_results(res);
+ return ok==2;
+}

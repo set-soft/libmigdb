@@ -59,10 +59,10 @@ enum mi_val_type { t_const, t_tuple, t_list };
 #define MI_CL_ERROR        5
 #define MI_CL_EXIT         6
 
-#define MI_VERSION_STR "0.8.2"
+#define MI_VERSION_STR "0.8.3"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  2
+#define MI_VERSION_MINOR  3
 
 struct mi_results_struct
 {
@@ -395,6 +395,8 @@ char *mi_res_value(mi_h *h);
 mi_stop *mi_res_stop(mi_h *h);
 enum mi_stop_reason mi_reason_str_to_enum(const char *s);
 const char *mi_reason_enum_to_str(enum mi_stop_reason r);
+int mi_get_read_memory(mi_h *h, unsigned char *dest, unsigned ws, int *na,
+                       unsigned long *addr);
 
 /* Allocation functions: */
 void *mi_calloc(size_t count, size_t sz);
@@ -496,6 +498,10 @@ mi_wp *gmi_break_watch(mi_h *h, enum mi_wp_mode mode, const char *exp);
 char *gmi_data_evaluate_expression(mi_h *h, const char *expression);
 /* Path for sources. */
 int gmi_dir(mi_h *h, char *path);
+/* A very limited "data read memory" implementation. */
+int gmi_read_memory(mi_h *h, const char *exp, unsigned size,
+                    unsigned char *dest, int *na, int convAddr,
+                    unsigned long *addr);
 
 /* Stack manipulation. */
 /* List of frames. Arguments aren't filled. */
@@ -619,7 +625,7 @@ public:
  int FinishFun();
  mi_frames *ReturnNow();
  mi_frames *CallStack(bool args);
- char *EvalExpression(char *exp);
+ char *EvalExpression(const char *exp);
  char *ModifyExpression(char *exp, char *newVal);
  mi_gvar *AddgVar(const char *exp, int frame=-1)
  {
@@ -684,6 +690,19 @@ public:
   if (state==running || state==disconnected)
      return 0;
   return gmi_dir(h,path);
+ }
+ int ReadMemory(const char *exp, unsigned size, unsigned char *dest,
+                int &na, int convAddr, unsigned long *addr)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_read_memory(h,exp,size,dest,&na,convAddr,addr);
+ }
+ char *Show(const char *var)
+ {
+  if (state==running || state==disconnected)
+     return 0;
+  return gmi_gdb_show(h,var);
  }
 
  eState GetState() { return state; }

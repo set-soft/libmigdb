@@ -58,6 +58,15 @@ void mi_dir(mi_h *h, const char *path)
    }
 }
 
+void mi_data_read_memory_hx(mi_h *h, const char *exp, unsigned ws,
+                            unsigned c, int convAddr)
+{
+ if (convAddr)
+    mi_send(h,"-data-read-memory \"&%s\" x %d 1 %d\n",exp,ws,c);
+ else
+    mi_send(h,"-data-read-memory \"%s\" x %d 1 %d\n",exp,ws,c);
+}
+
 /* High level versions. */
 
 /**[txh]********************************************************************
@@ -92,3 +101,12 @@ int gmi_dir(mi_h *h, char *path)
  mi_dir(h,path);
  return mi_res_simple_done(h);
 }
+
+int gmi_read_memory(mi_h *h, const char *exp, unsigned size,
+                    unsigned char *dest, int *na, int convAddr,
+                    unsigned long *addr)
+{
+ mi_data_read_memory_hx(h,exp,1,size,convAddr);
+ return mi_get_read_memory(h,dest,1,na,addr);
+}
+

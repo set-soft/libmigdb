@@ -832,12 +832,13 @@ description is returned instead. Can't be called if "disconnected" or
   
 ***************************************************************************/
 
-char *MIDebugger::EvalExpression(char *exp)
+char *MIDebugger::EvalExpression(const char *exp)
 {
  if (state==disconnected ||
      state==running) // No async :-(
     return NULL;
  // Evaluate it
+ mi_error=MI_OK;
  char *res=gmi_data_evaluate_expression(h,exp);
  if (!res && mi_error_from_gdb)
    {// Not valid, return the error

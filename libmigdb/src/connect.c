@@ -237,11 +237,36 @@ mi_output *mi_get_response_blk(mi_h *h)
  int r;
  do
    {
-    r=mi_get_response(h);
-    if (r)
-       return mi_retire_response(h);
+    if (1)
+      {
+       /*
+        That's a must. If we just keep trying to read and failing things
+        become really sloooowwww. Instead we try and if it fails we wait
+        until something is available.
+        TODO: Implement something with the time out, a callback to ask the
+        application is we have to wait or not could be a good thing.
+       */
+       fd_set set;
+       struct timeval timeout;
+
+       r=mi_get_response(h);
+       if (r)
+          return mi_retire_response(h);
+
+       FD_ZERO(&set);
+       FD_SET(h->from_gdb[0],&set);
+       timeout.tv_sec=10;
+       timeout.tv_usec=0;
+       select(FD_SETSIZE,&set,NULL,NULL,&timeout);
+      }
     else
-       usleep(1000);
+      {
+       r=mi_get_response(h);
+       if (r)
+          return mi_retire_response(h);
+       else
+          usleep(100);
+      }
    }
  while (!r);
 

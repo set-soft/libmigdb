@@ -1,4 +1,10 @@
-$Log$.
+$Log$
+Revision 1.8  2004/08/04 20:07:31  set
+* Modified: The mi_gvar structure to be able to hold a tree of variables.
+* Fixed: mi_error_from_gdb not released at exit.
+* Fixed: leak in Kill()
+* Fixed/Added: Various details of the GNU vars code.
+
 Revision 1.7  2004/08/01 00:16:13  set
 * Added: More fields to the mi_wp structure, useful for the frontend.
 * Fixed: Watchpoint expressions must be enclosed using "" to avoid
