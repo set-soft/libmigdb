@@ -139,6 +139,7 @@ int MIDebugger::SelectTargetTTY(const char *exec, const char *args,
     return 0;
 
  const char *tty_name;
+ #ifndef __CYGWIN__
  if (!auxtty)
    {
     aux_tty=m==dmLinux ? gmi_look_for_free_vt() : gmi_start_xterm();
@@ -152,6 +153,11 @@ int MIDebugger::SelectTargetTTY(const char *exec, const char *args,
    }
  if (!gmi_target_terminal(h,tty_name))
     return 0;
+ #else
+ tty_name=NULL;
+ if (!gmi_gdb_set(h,"new-console","on"))
+    return 0;
+ #endif
 
  state=target_specified;
  preRun=false;

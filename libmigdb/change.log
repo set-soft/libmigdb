@@ -1,4 +1,8 @@
-$Log$
+$Log$.
+Revision 1.22  2004/09/16 23:18:26  set
+* Modified: To compile with Cygwin. It doesn't mean it works, just
+compiles.
+
 Revision 1.21  2004/09/10 19:10:20  set
 * Added: A top level makefile, is just a wrapper for the src/Makefile.
 * Modified: Version to 0.8.6.
