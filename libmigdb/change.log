@@ -1,4 +1,8 @@
-$Log$
+$Log$.
+Revision 1.18  2004/09/06 17:13:11  set
+* Added: Functions to workaround another bug in gdb. I reported it and it
+was named "mi/1770". Affects gdb 6.x.
+
 Revision 1.17  2004/08/25 20:49:52  set
 * Modified: mi_error reset to MI_OK when connecting.
 * Modified: MIDebugger::TargetUnselect() to detach only if remote/pid is

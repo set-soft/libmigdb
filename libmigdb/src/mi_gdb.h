@@ -26,7 +26,10 @@ extern "C" {
 #define MI_FROM_GDB                8
 #define MI_GDB_TIME_OUT            9
 #define MI_GDB_DIED               10
-#define MI_LAST_ERROR             10
+#define MI_MISSING_XTERM          11
+#define MI_CREATE_TEMPORAL        12
+#define MI_MISSING_GDB            13
+#define MI_LAST_ERROR             13
 
 #define MI_R_NONE                  0 /* We are no waiting any response. */
 #define MI_R_SKIP                  1 /* We want to discard it. */

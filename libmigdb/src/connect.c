@@ -324,10 +324,19 @@ similar to a "FILE *" for stdio.
 
 mi_h *mi_connect_local()
 {
- /* Alloc the handle structure. */
- mi_h *h=mi_alloc_h();
+ mi_h *h;
+ const char *gdb=mi_get_gdb_exe();
+
  /* Start without error. */
  mi_error=MI_OK;
+ /* Verify we have a GDB binary. */
+ if (access(gdb,X_OK))
+   {
+    mi_error=MI_MISSING_GDB;
+    return NULL;
+   }
+ /* Alloc the handle structure. */
+ h=mi_alloc_h();
  if (!h)
     return h;
  h->time_out=MI_DEFAULT_TIME_OUT;
@@ -358,7 +367,7 @@ mi_h *mi_connect_local()
     dup2(h->to_gdb[0],STDIN_FILENO);
     dup2(h->from_gdb[1],STDOUT_FILENO);
     /* Pass the control to gdb. */
-    argv[0]=(char *)mi_get_gdb_exe(); /* Is that OK? */
+    argv[0]=(char *)gdb; /* Is that OK? */
     argv[1]="--interpreter=mi";
     argv[2]="--quiet";
     argv[3]=disable_psym_search_workaround ? 0 : "--readnow";
@@ -598,7 +607,7 @@ void mi_set_xterm_exe(const char *name)
 const char *mi_get_xterm_exe()
 {
  if (!xterm_exe)
-   {/* Look for gdb in path */
+   {/* Look for xterm in path */
     xterm_exe=mi_search_in_path("xterm");
     if (!xterm_exe)
        return "/usr/bin/X11/xterm";
@@ -634,22 +643,36 @@ mi_aux_term *gmi_start_xterm()
 {
  char nsh[14]="/tmp/shXXXXXX";
  char ntt[14]="/tmp/ttXXXXXX";
+ const char *xterm;
+ struct stat st;
  int hsh, htt=-1;
  mi_aux_term *res=NULL;
  FILE *f;
  pid_t pid;
- struct stat st;
  char buf[PATH_MAX];
+
+ /* Verify we have an X terminal. */
+ xterm=mi_get_xterm_exe();
+ if (access(xterm,X_OK))
+   {
+    mi_error=MI_MISSING_XTERM;
+    return NULL;
+   }
 
  /* Create 2 temporals. */
  hsh=mkstemp(nsh);
  if (hsh==-1)
+   {
+    mi_error=MI_CREATE_TEMPORAL;
     return NULL;
+   }
  htt=mkstemp(ntt);
  if (htt==-1)
    {
     close(hsh);
     unlink(nsh);
+    mi_error=MI_CREATE_TEMPORAL;
+    return NULL;
    }
  close(htt);
  /* Create the script. */
@@ -659,6 +682,8 @@ mi_aux_term *gmi_start_xterm()
     close(hsh);
     unlink(nsh);
     unlink(ntt);
+    mi_error=MI_CREATE_TEMPORAL;
+    return NULL;
    }
  fprintf(f,"#!/bin/sh\n");
  fprintf(f,"tty > %s\n",ntt);
@@ -688,6 +713,7 @@ mi_aux_term *gmi_start_xterm()
    {/* Fork failed. */
     unlink(nsh);
     unlink(ntt);
+    mi_error=MI_FORK;
     return NULL;
    }
  /* Wait until the shell is deleted. */
