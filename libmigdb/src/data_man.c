@@ -45,7 +45,7 @@ void mi_data_evaluate_expression(mi_h *h, const char *expression)
 
 void mi_dir(mi_h *h, const char *path)
 {
- if (0)
+ if (h->version>=MI_VERSION2U(2,0,0))
    {// MI v2
     if (path)
        mi_send(h,"-environment-directory \"%s\"\n",path);
@@ -130,7 +130,7 @@ the program to debug. Only the MI v1 implementation is available.
   
 ***************************************************************************/
 
-int gmi_dir(mi_h *h, char *path)
+int gmi_dir(mi_h *h, const char *path)
 {
  mi_dir(h,path);
  return mi_res_simple_done(h);

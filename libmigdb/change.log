@@ -1,4 +1,7 @@
-$Log$.
+$Log$
+Revision 1.14  2004/08/17 20:40:11  set
+* Added: Disassembler functionality.
+
 Revision 1.13  2004/08/13 20:36:08  set
 * Modified: The mechanism to set gdb and xterm binaries. Now you can get
 the actual default (it searches in PATH) and set a new value that's copied.

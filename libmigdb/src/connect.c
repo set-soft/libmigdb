@@ -35,6 +35,7 @@ char *mi_error_from_gdb=NULL;
 static char *gdb_exe=NULL;
 static char *xterm_exe=NULL;
 static char *main_func=NULL;
+static char  disable_psym_search_workaround=0;
 
 mi_h *mi_alloc_h()
 {
@@ -358,7 +359,7 @@ mi_h *mi_connect_local()
     argv[0]=(char *)mi_get_gdb_exe(); /* Is that OK? */
     argv[1]="--interpreter=mi";
     argv[2]="--quiet";
-    argv[3]="--readnow";
+    argv[3]=disable_psym_search_workaround ? 0 : "--readnow";
     argv[4]=0;
     execvp(argv[0],argv);
     /* We get here only if exec failed. */
@@ -734,5 +735,55 @@ void gmi_end_aux_term(mi_aux_term *t)
  if (t->pid!=-1 && mi_check_running_pid(t->pid))
     mi_kill_child(t->pid);
  mi_free_aux_term(t);
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Forces the MI version. Currently the library can't detect it so you must
+force it manually. GDB 5.x implemented MI v1 and 6.x v2.
+  
+***************************************************************************/
+
+void mi_force_version(mi_h *h, unsigned vMajor, unsigned vMiddle,
+                      unsigned vMinor)
+{
+ h->version=MI_VERSION2U(vMajor,vMiddle,vMinor);
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Dis/Enables the @var{wa} workaround for a bug in gdb.
+
+***************************************************************************/
+
+void mi_set_workaround(unsigned wa, int enable)
+{
+ switch (wa)
+   {
+    case MI_PSYM_SEARCH:
+         disable_psym_search_workaround=enable ? 0 : 1;
+         break;
+   }
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Finds if the @var{wa} workaround for a bug in gdb is enabled.
+  
+  Return: !=0 if enabled.
+  
+***************************************************************************/
+
+int mi_get_workaround(unsigned wa)
+{
+ switch (wa)
+   {
+    case MI_PSYM_SEARCH:
+         return disable_psym_search_workaround==0;
+   }
+ return 0;
 }
 

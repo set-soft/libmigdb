@@ -66,10 +66,15 @@ enum mi_val_type { t_const, t_tuple, t_list };
 #define MI_DIS_ASM        0
 #define MI_DIS_SRC_ASM    1
 
-#define MI_VERSION_STR "0.8.4"
+/* Implemented workaround for gdb bugs that we can dis/enable. */
+/* At least gdb<=6.1.1 fails to find a source file with absolute path if the
+   name is for a psym instead of a sym. psym==partially loaded symbol table. */
+#define MI_PSYM_SEARCH    0
+
+#define MI_VERSION_STR "0.8.5"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  4
+#define MI_VERSION_MINOR  5
 
 struct mi_results_struct
 {
@@ -142,6 +147,8 @@ struct mi_h_struct
  /* Ugly workaround for some of the show responses :-( */
  int catch_console;
  char *catched_console;
+ /* MI version, currently unknown but the user can force v2 */
+ unsigned version;
 };
 typedef struct mi_h_struct mi_h;
 
@@ -380,6 +387,12 @@ const char *mi_get_gdb_exe();
 mi_h *mi_connect_local();
 /* Close connection. You should ask gdb to quit first. */
 void  mi_disconnect(mi_h *h);
+/* Force MI version. */
+#define MI_VERSION2U(maj,mid,min) (maj*0x1000000+mid*0x10000+min)
+void  mi_force_version(mi_h *h, unsigned vMajor, unsigned vMiddle,
+                       unsigned vMinor);
+void  mi_set_workaround(unsigned wa, int enable);
+int   mi_get_workaround(unsigned wa);
 /* Parse gdb output. */
 mi_output *mi_parse_gdb_output(const char *str);
 /* Functions to set/get the tunneled streams callbacks. */
@@ -575,7 +588,7 @@ mi_wp *gmi_break_watch(mi_h *h, enum mi_wp_mode mode, const char *exp);
 /* Evaluate an expression. Returns a parsed tree. */
 char *gmi_data_evaluate_expression(mi_h *h, const char *expression);
 /* Path for sources. */
-int gmi_dir(mi_h *h, char *path);
+int gmi_dir(mi_h *h, const char *path);
 /* A very limited "data read memory" implementation. */
 int gmi_read_memory(mi_h *h, const char *exp, unsigned size,
                     unsigned char *dest, int *na, int convAddr,
@@ -704,6 +717,12 @@ public:
                          bool hard_assist=false);
  mi_bkpt *Breakpoint(mi_bkpt *b);
  int BreakDelete(mi_bkpt *b);
+ int BreakAfter(mi_bkpt *b)
+ {
+  if (state!=target_specified && state!=stopped)
+     return 0;
+  return gmi_break_set_times(h,b->number,b->ignore);
+ }
  mi_wp *Watchpoint(enum mi_wp_mode mode, const char *exp);
  int WatchDelete(mi_wp *w);
  int RunToMain();
@@ -773,7 +792,7 @@ public:
      return 0;
   return gmi_gdb_version(h);
  }
- int PathSources(char *path)
+ int PathSources(const char *path)
  {
   if (state==running || state==disconnected)
      return 0;
@@ -874,6 +893,8 @@ public:
    { mi_set_time_out_cb(h,cb,data); }
  void SetTimeOut(int to)
    { mi_set_time_out(h,to); }
+ void ForceMIVersion(unsigned vMajor, unsigned vMiddle, unsigned vMinor)
+   { mi_force_version(h,vMajor,vMiddle,vMinor); }
 
  const char *GetAuxTTY()
    { return aux_tty ? aux_tty->tty : NULL; }

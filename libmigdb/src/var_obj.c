@@ -102,7 +102,10 @@ void mi_var_evaluate_expression(mi_h *h, const char *name)
 
 void mi_var_list_children(mi_h *h, const char *name)
 {
- mi_send(h,"-var-list-children \"%s\"\n",name);
+ if (h->version>=MI_VERSION2U(2,0,0))
+    mi_send(h,"-var-list-children --all-values \"%s\"\n",name);
+ else
+    mi_send(h,"-var-list-children \"%s\"\n",name);
 }
 
 /* High level versions. */
