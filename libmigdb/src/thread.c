@@ -10,12 +10,10 @@
 @<pre>
 gdb command:              Implemented?
 -thread-info              N.A.
--thread-list-all-threads  N.A. (info threads)
+-thread-list-all-threads  Yes, implemented as "info threads"
 -thread-list-ids          Yes
 -thread-select            Yes
 @</pre>
-
-Note: Untested.@p
 
 ***************************************************************************/
 
@@ -31,6 +29,11 @@ void mi_thread_list_ids(mi_h *h)
 void mi_thread_select(mi_h *h, int id)
 {
  mi_send(h,"-thread-select %d\n",id);
+}
+
+void mi_thread_list_all_threads(mi_h *h)
+{
+ mi_send(h,"info threads\n");
 }
 
 /* High level versions. */
@@ -65,5 +68,22 @@ mi_frames *gmi_thread_select(mi_h *h, int id)
 {
  mi_thread_select(h,id);
  return mi_res_frame(h);
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Get a list of frames for each available thread. Implemented using "info
+thread".
+
+  Command: -thread-list-all-threads
+  Return: A kist of frames, NULL on error
+  
+***************************************************************************/
+
+mi_frames *gmi_thread_list_all_threads(mi_h *h)
+{
+ mi_thread_list_all_threads(h);
+ return mi_res_frames_list(h);
 }
 

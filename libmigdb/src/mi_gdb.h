@@ -184,6 +184,7 @@ struct mi_frames_struct
  int line;   /* Line number corresponding to the `$pc'. */
  /* When arguments are available: */
  mi_results *args;
+ int thread_id;
  /* When more than one is provided: */
  struct mi_frames_struct *next;
 };
@@ -369,6 +370,7 @@ int mi_res_simple_connected(mi_h *h);
 mi_results *mi_res_done_var(mi_h *h, const char *var);
 /* Extract a frames list from the response. */
 mi_frames *mi_res_frames_array(mi_h *h, const char *var);
+mi_frames *mi_res_frames_list(mi_h *h);
 mi_frames *mi_parse_frame(mi_results *c);
 mi_frames *mi_res_frame(mi_h *h);
 /* Create an auxiliar terminal using xterm. */
@@ -531,6 +533,8 @@ mi_results *gmi_stack_list_locals(mi_h *h, int show);
 int gmi_thread_list_ids(mi_h *h, int **list);
 /* Select a thread. */
 mi_frames *gmi_thread_select(mi_h *h, int id);
+/* List available threads. */
+mi_frames *gmi_thread_list_all_threads(mi_h *h);
 
 /* Variable objects. */
 /* Create a variable object. */
@@ -703,8 +707,26 @@ public:
   return gmi_read_memory(h,exp,size,dest,&na,convAddr,addr);
  }
  char *Show(const char *var);
- endianType GetTargetEndian();
+ int ThreadListIDs(int *&list)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_thread_list_ids(h,&list);
+ }
+ mi_frames *ThreadList()
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_thread_list_all_threads(h);
+ }
+ mi_frames *ThreadSelect(int id)
+ {
+  if (state!=stopped)
+     return NULL;
+  return gmi_thread_select(h,id);
+ }
 
+ endianType GetTargetEndian();
  eState GetState() { return state; }
 
  /* Some wrappers */

@@ -665,6 +665,38 @@ mi_frames *mi_res_frames_array(mi_h *h, const char *var)
  return res;
 }
 
+mi_frames *mi_res_frames_list(mi_h *h)
+{
+ mi_output *r, *res;
+ mi_frames *ret=NULL, *nframe, *last=NULL;
+ mi_results *c;
+
+ r=mi_get_response_blk(h);
+ res=mi_get_rrecord(r);
+ if (res && res->tclass==MI_CL_DONE)
+   {
+    c=res->c;
+    while (c)
+      {
+       if (strcmp(c->var,"frame")==0 && c->type==t_tuple)
+         {
+          nframe=mi_parse_frame(c->v.rs);
+          if (nframe)
+            {
+             if (!last)
+                ret=nframe;
+             else
+                last->next=nframe;
+             last=nframe;
+            }
+         }
+       c=c->next;
+      }
+   }
+ mi_free_output(r);
+ return ret;
+}
+
 int mi_get_thread_ids(mi_output *res, int **list)
 {
  mi_results *vids, *lids;

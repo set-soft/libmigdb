@@ -1,4 +1,7 @@
-$Log$
+$Log$.
+Revision 1.11  2004/08/09 12:58:23  set
+* Updated: version and reference to release 0.8.3.
+
 Revision 1.10  2004/08/08 23:07:00  set
 * Added: A function to know the endian of the target.
 * Added: A workaround to another bug in gdb: responses like the endian and
