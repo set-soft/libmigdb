@@ -59,10 +59,10 @@ enum mi_val_type { t_const, t_tuple, t_list };
 #define MI_CL_ERROR        5
 #define MI_CL_EXIT         6
 
-#define MI_VERSION_STR "0.8.0"
+#define MI_VERSION_STR "0.8.1"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  0
+#define MI_VERSION_MINOR  1
 
 struct mi_results_struct
 {
@@ -441,7 +441,7 @@ int gmi_exec_kill(mi_h *h);
 /* Connect to a remote gdbserver using the specified methode. */
 int gmi_target_select(mi_h *h, const char *type, const char *params);
 /* Attach to an already running process. */
-int gmi_target_attach(mi_h *h, pid_t pid);
+mi_frames *gmi_target_attach(mi_h *h, pid_t pid);
 /* Detach from an attached process. */
 int gmi_target_detach(mi_h *h);
 
@@ -568,7 +568,7 @@ public:
  ~MIDebugger();
 
  enum eState { disconnected, connected, target_specified, running, stopped };
- enum dMode  { dmX11, dmLinux, dmRemote };
+ enum dMode  { dmX11, dmLinux, dmRemote, dmPID };
 
  int Connect(bool remote=false); /* remote is currently ignored. */
  int Disconnect();
@@ -579,6 +579,9 @@ public:
                        const char *auxtty=NULL);
  int SelectTargetRemote(const char *exec, const char *rparams,
                         const char *rtype=NULL);
+ // TODO: Linux PIDs can be represented as intergers. What should I use?
+ // ato_pid_t doesn't exist ;-)
+ mi_frames *SelectTargetPID(const char *exec, int pid);
  int TargetUnselect();
  int Run();
  int Stop();

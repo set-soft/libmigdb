@@ -65,14 +65,15 @@ int gmi_target_select(mi_h *h, const char *type, const char *params)
   Attach to an already running process.
 
   Command: -target-attach [using attach]
-  Return: !=0 OK
+  Return: The frame of the current location, NULL on error.
   
 ***************************************************************************/
 
-int gmi_target_attach(mi_h *h, pid_t pid)
+mi_frames *gmi_target_attach(mi_h *h, pid_t pid)
 {
  mi_target_attach(h,pid);
- return mi_res_simple_done(h);
+ //return mi_res_simple_done(h);
+ return mi_res_frame(h);
 }
 
 /**[txh]********************************************************************

@@ -232,8 +232,35 @@ int MIDebugger::SelectTargetRemote(const char *exec, const char *rparams,
     return 0;
 
  state=target_specified;
- preRun=true;
  return 1;
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Starts a local session using an already running process.
+  
+  Return: !=0 OK.
+  
+***************************************************************************/
+
+mi_frames *MIDebugger::SelectTargetPID(const char *exec, int pid)
+{
+ if (state!=connected)
+    return NULL;
+
+ mode=dmPID;
+ preRun=true;
+
+ /* Tell gdb to load symbols from the local copy. */
+ if (!gmi_file_symbol_file(h,exec))
+    return NULL;
+
+ mi_frames *res=gmi_target_attach(h,pid);
+ if (res)
+    state=target_specified;
+
+ return res;
 }
 
 /**[txh]********************************************************************
@@ -261,6 +288,7 @@ int MIDebugger::TargetUnselect()
             aux_tty=NULL;
            }
          break;
+    case dmPID:
     case dmRemote:
          if (!gmi_target_detach(h))
             return 0;
@@ -344,7 +372,9 @@ int MIDebugger::Poll(mi_stop *&rs)
     if (res->reason==sr_exited_signalled ||
         res->reason==sr_exited ||
         res->reason==sr_exited_normally)
-       state=target_specified;
+       // When we use a PID the exit makes it invalid, so we don't have a
+       // valid target to re-run.
+       state=mode==dmPID ? connected : target_specified;
     else
        state=stopped;
     if (res->reason==sr_unknown && waitingTempBkpt)
@@ -352,6 +382,16 @@ int MIDebugger::Poll(mi_stop *&rs)
        waitingTempBkpt=0;
        res->reason=sr_bkpt_hit;
       }
+   }
+ else
+   {// We got an error. It looks like most async commands returns running even
+    // before they are sure the process is running. Latter we get the real
+    // error. So I'm assuming the program is stopped.
+    // Lamentably -target-exec-status isn't implemented and even in this case
+    // if the program is really running as real async isn't implemented it
+    // will fail anyways.
+    if (state==running)
+       state=stopped;
    }
  rs=res;
  return 1;
