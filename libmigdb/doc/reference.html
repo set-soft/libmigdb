@@ -58,6 +58,7 @@ function. And the examples show how to them together.
 <li><a href="#Continue (MIDebugger)">Continue (MIDebugger)</a>
 <li><a href="#Disconnect (MIDebugger)">Disconnect (MIDebugger)</a>
 <li><a href="#EvalExpression (MIDebugger)">EvalExpression (MIDebugger)</a>
+<li><a href="#FillTypeVal (MIDebugger)">FillTypeVal (MIDebugger)</a>
 <li><a href="#FinishFun (MIDebugger)">FinishFun (MIDebugger)</a>
 <li><a href="#gmi_break_delete">gmi_break_delete</a>
 <li><a href="#gmi_break_insert">gmi_break_insert</a>
@@ -172,6 +173,7 @@ function. And the examples show how to them together.
 <li><a href="#Continue (MIDebugger)">Continue (MIDebugger)</a>
 <li><a href="#Disconnect (MIDebugger)">Disconnect (MIDebugger)</a>
 <li><a href="#EvalExpression (MIDebugger)">EvalExpression (MIDebugger)</a>
+<li><a href="#FillTypeVal (MIDebugger)">FillTypeVal (MIDebugger)</a>
 <li><a href="#FinishFun (MIDebugger)">FinishFun (MIDebugger)</a>
 <li><a href="#GoTo (MIDebugger)">GoTo (MIDebugger)</a>
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
@@ -293,6 +295,7 @@ Implements a very simple (naive ;-) C++ wrapper.
 <li><a href="#Continue (MIDebugger)">Continue (MIDebugger)</a>
 <li><a href="#Disconnect (MIDebugger)">Disconnect (MIDebugger)</a>
 <li><a href="#EvalExpression (MIDebugger)">EvalExpression (MIDebugger)</a>
+<li><a href="#FillTypeVal (MIDebugger)">FillTypeVal (MIDebugger)</a>
 <li><a href="#FinishFun (MIDebugger)">FinishFun (MIDebugger)</a>
 <li><a href="#GoTo (MIDebugger)">GoTo (MIDebugger)</a>
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
@@ -776,6 +779,7 @@ It isn't implemented.<br>
 <li><a href="#Continue (MIDebugger)">Continue (MIDebugger)</a>
 <li><a href="#Disconnect (MIDebugger)">Disconnect (MIDebugger)</a>
 <li><a href="#EvalExpression (MIDebugger)">EvalExpression (MIDebugger)</a>
+<li><a href="#FillTypeVal (MIDebugger)">FillTypeVal (MIDebugger)</a>
 <li><a href="#FinishFun (MIDebugger)">FinishFun (MIDebugger)</a>
 <li><a href="#GoTo (MIDebugger)">GoTo (MIDebugger)</a>
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
@@ -1888,7 +1892,7 @@ error.
 
 <p><hr></p>
 <a name="mi_connect_local"></a>
-<center><Font Size=+2>mi_connect_local</Font> (connect.c 259)</center>
+<center><Font Size=+2>mi_connect_local</Font> (connect.c 296)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1917,7 +1921,7 @@ A new mi_h structure or NULL on error.
 
 <p><hr></p>
 <a name="mi_disconnect"></a>
-<center><Font Size=+2>mi_disconnect</Font> (connect.c 327)</center>
+<center><Font Size=+2>mi_disconnect</Font> (connect.c 364)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1940,7 +1944,7 @@ Close connection. You should ask gdb to quit first <a href="#gmi_gdb_exit">gmi_g
 
 <p><hr></p>
 <a name="gmi_start_xterm"></a>
-<center><Font Size=+2>gmi_start_xterm</Font> (connect.c 443)</center>
+<center><Font Size=+2>gmi_start_xterm</Font> (connect.c 482)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1969,7 +1973,7 @@ release it.
 
 <p><hr></p>
 <a name="gmi_end_aux_term"></a>
-<center><Font Size=+2>gmi_end_aux_term</Font> (connect.c 543)</center>
+<center><Font Size=+2>gmi_end_aux_term</Font> (connect.c 582)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2020,7 +2024,7 @@ Use <a href="#Connect (MIDebugger)">Connect</a> after it.
 
 <p><hr></p>
 <a name="~MIDebugger (MIDebugger)"></a>
-<center><Font Size=+2>~MIDebugger</Font> (cpp_int.cc 38)</center>
+<center><Font Size=+2>~MIDebugger</Font> (cpp_int.cc 39)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2048,7 +2052,7 @@ This is the destructor for the class. It tries to change the state to
 
 <p><hr></p>
 <a name="Connect (MIDebugger)"></a>
-<center><Font Size=+2>Connect</Font> (cpp_int.cc 77)</center>
+<center><Font Size=+2>Connect</Font> (cpp_int.cc 78)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2084,7 +2088,7 @@ SelectTarget members. <a href="#SelectTargetX11 (MIDebugger)">SelectTargetX11</a
 
 <p><hr></p>
 <a name="Disconnect (MIDebugger)"></a>
-<center><Font Size=+2>Disconnect</Font> (cpp_int.cc 103)</center>
+<center><Font Size=+2>Disconnect</Font> (cpp_int.cc 104)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2119,7 +2123,7 @@ killed.
 
 <p><hr></p>
 <a name="SelectTargetTTY (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetTTY</Font> (cpp_int.cc 125)</center>
+<center><Font Size=+2>SelectTargetTTY</Font> (cpp_int.cc 126)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2152,7 +2156,7 @@ Protected member that implements <a href="#SelectTargetX11 (MIDebugger)">SelectT
 
 <p><hr></p>
 <a name="SelectTargetX11 (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetX11</Font> (cpp_int.cc 170)</center>
+<center><Font Size=+2>SelectTargetX11</Font> (cpp_int.cc 172)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2190,7 +2194,7 @@ to define breakpoints and similar stuff. To finish it use
 
 <p><hr></p>
 <a name="SelectTargetLinux (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetLinux</Font> (cpp_int.cc 192)</center>
+<center><Font Size=+2>SelectTargetLinux</Font> (cpp_int.cc 194)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2228,7 +2232,7 @@ to define breakpoints and similar stuff. To finish it use
 
 <p><hr></p>
 <a name="SelectTargetRemote (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetRemote</Font> (cpp_int.cc 218)</center>
+<center><Font Size=+2>SelectTargetRemote</Font> (cpp_int.cc 220)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2274,7 +2278,7 @@ o-&gt;SelectTargetRemote("./exec_file","192.168.1.65:5000");
 
 <p><hr></p>
 <a name="SelectTargetPID (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetPID</Font> (cpp_int.cc 246)</center>
+<center><Font Size=+2>SelectTargetPID</Font> (cpp_int.cc 249)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2306,7 +2310,7 @@ Starts a local session using an already running process.
 
 <p><hr></p>
 <a name="TargetUnselect (MIDebugger)"></a>
-<center><Font Size=+2>TargetUnselect</Font> (cpp_int.cc 281)</center>
+<center><Font Size=+2>TargetUnselect</Font> (cpp_int.cc 285)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2340,7 +2344,7 @@ terminal. For remote debugging it uses "detach". Can be called when in
 
 <p><hr></p>
 <a name="Run (MIDebugger)"></a>
-<center><Font Size=+2>Run</Font> (cpp_int.cc 317)</center>
+<center><Font Size=+2>Run</Font> (cpp_int.cc 321)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2376,7 +2380,7 @@ information is known using Poll. You can stop the program using <a href="#Stop (
 
 <p><hr></p>
 <a name="Stop (MIDebugger)"></a>
-<center><Font Size=+2>Stop</Font> (cpp_int.cc 347)</center>
+<center><Font Size=+2>Stop</Font> (cpp_int.cc 351)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2417,7 +2421,7 @@ execution.
 
 <p><hr></p>
 <a name="Poll (MIDebugger)"></a>
-<center><Font Size=+2>Poll</Font> (cpp_int.cc 368)</center>
+<center><Font Size=+2>Poll</Font> (cpp_int.cc 372)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2454,7 +2458,7 @@ mi_stop structure if we got it or will be NULL if we didn't.
 
 <p><hr></p>
 <a name="Continue (MIDebugger)"></a>
-<center><Font Size=+2>Continue</Font> (cpp_int.cc 414)</center>
+<center><Font Size=+2>Continue</Font> (cpp_int.cc 418)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2487,7 +2491,7 @@ is stopped. On success will change to "running" state.
 
 <p><hr></p>
 <a name="RunOrContinue (MIDebugger)"></a>
-<center><Font Size=+2>RunOrContinue</Font> (cpp_int.cc 436)</center>
+<center><Font Size=+2>RunOrContinue</Font> (cpp_int.cc 440)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2522,7 +2526,7 @@ state is "target_specified" or "stopped". On success will change to
 
 <p><hr></p>
 <a name="Kill (MIDebugger)"></a>
-<center><Font Size=+2>Kill</Font> (cpp_int.cc 455)</center>
+<center><Font Size=+2>Kill</Font> (cpp_int.cc 459)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2557,7 +2561,7 @@ if you want to just stop the program call <a href="#Stop (MIDebugger)">Stop</a>.
 
 <p><hr></p>
 <a name="Breakpoint (MIDebugger)"></a>
-<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 499)</center>
+<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 506)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2590,7 +2594,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="Breakpoint (MIDebugger) <1>"></a>
-<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 516)</center>
+<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 523)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2623,7 +2627,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="BreakpointFull (MIDebugger)"></a>
-<center><Font Size=+2>BreakpointFull</Font> (cpp_int.cc 564)</center>
+<center><Font Size=+2>BreakpointFull</Font> (cpp_int.cc 571)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2656,7 +2660,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="BreakDelete (MIDebugger)"></a>
-<center><Font Size=+2>BreakDelete</Font> (cpp_int.cc 584)</center>
+<center><Font Size=+2>BreakDelete</Font> (cpp_int.cc 591)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2689,7 +2693,7 @@ called when the state is "stopped" or "target_specified".
 
 <p><hr></p>
 <a name="Watchpoint (MIDebugger)"></a>
-<center><Font Size=+2>Watchpoint</Font> (cpp_int.cc 601)</center>
+<center><Font Size=+2>Watchpoint</Font> (cpp_int.cc 608)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2722,7 +2726,7 @@ An mi_wp structure or NULL if error.
 
 <p><hr></p>
 <a name="WatchDelete (MIDebugger)"></a>
-<center><Font Size=+2>WatchDelete</Font> (cpp_int.cc 618)</center>
+<center><Font Size=+2>WatchDelete</Font> (cpp_int.cc 625)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2755,7 +2759,7 @@ called when the state is "stopped" or "target_specified".
 
 <p><hr></p>
 <a name="RunToMain (MIDebugger)"></a>
-<center><Font Size=+2>RunToMain</Font> (cpp_int.cc 636)</center>
+<center><Font Size=+2>RunToMain</Font> (cpp_int.cc 643)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2789,7 +2793,7 @@ change to "running".
 
 <p><hr></p>
 <a name="StepOver (MIDebugger)"></a>
-<center><Font Size=+2>StepOver</Font> (cpp_int.cc 660)</center>
+<center><Font Size=+2>StepOver</Font> (cpp_int.cc 667)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2824,7 +2828,7 @@ next command. If successfully the state will change to "running".
 
 <p><hr></p>
 <a name="GoTo (MIDebugger)"></a>
-<center><Font Size=+2>GoTo</Font> (cpp_int.cc 692)</center>
+<center><Font Size=+2>GoTo</Font> (cpp_int.cc 699)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2858,7 +2862,7 @@ Fails for any other state.
 
 <p><hr></p>
 <a name="FinishFun (MIDebugger)"></a>
-<center><Font Size=+2>FinishFun</Font> (cpp_int.cc 729)</center>
+<center><Font Size=+2>FinishFun</Font> (cpp_int.cc 736)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2891,7 +2895,7 @@ usable when we are in the "stopped" state.
 
 <p><hr></p>
 <a name="ReturnNow (MIDebugger)"></a>
-<center><Font Size=+2>ReturnNow</Font> (cpp_int.cc 746)</center>
+<center><Font Size=+2>ReturnNow</Font> (cpp_int.cc 753)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2924,7 +2928,7 @@ synchronous function.
 
 <p><hr></p>
 <a name="CallStack (MIDebugger)"></a>
-<center><Font Size=+2>CallStack</Font> (cpp_int.cc 762)</center>
+<center><Font Size=+2>CallStack</Font> (cpp_int.cc 769)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2956,7 +2960,7 @@ MIDebugger
 
 <p><hr></p>
 <a name="TraceInto (MIDebugger)"></a>
-<center><Font Size=+2>TraceInto</Font> (cpp_int.cc 798)</center>
+<center><Font Size=+2>TraceInto</Font> (cpp_int.cc 805)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2991,14 +2995,14 @@ next command. If successfully the state will change to "running".
 
 <p><hr></p>
 <a name="EvalExpression (MIDebugger)"></a>
-<center><Font Size=+2>EvalExpression</Font> (cpp_int.cc 830)</center>
+<center><Font Size=+2>EvalExpression</Font> (cpp_int.cc 837)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
 
 
 <pre>
- MIDebugger::EvalExpression(char *exp);
+ MIDebugger::EvalExpression(const char *exp);
 </pre>
 
 
@@ -3025,7 +3029,7 @@ The result of the expression (use free) or NULL.
 
 <p><hr></p>
 <a name="ModifyExpression (MIDebugger)"></a>
-<center><Font Size=+2>ModifyExpression</Font> (cpp_int.cc 855)</center>
+<center><Font Size=+2>ModifyExpression</Font> (cpp_int.cc 863)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3059,7 +3063,7 @@ The result of the expression (use free) or NULL.
 
 <p><hr></p>
 <a name="Send (MIDebugger)"></a>
-<center><Font Size=+2>Send</Font> (cpp_int.cc 887)</center>
+<center><Font Size=+2>Send</Font> (cpp_int.cc 895)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3090,8 +3094,40 @@ Sends a command to gdb.
 
 
 <p><hr></p>
+<a name="FillTypeVal (MIDebugger)"></a>
+<center><Font Size=+2>FillTypeVal</Font> (cpp_int.cc 915)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ MIDebugger::FillTypeVal(mi_gvar *var);
+</pre>
+
+
+<Font Size=+1><u>Member of the class:</u></Font>
+MIDebugger
+<p>
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Fills the type and value fields of the mi_gvar provided list.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+!=0 OK
+<p>
+
+
+
+<p><hr></p>
 <a name="gmi_data_evaluate_expression"></a>
-<center><Font Size=+2>gmi_data_evaluate_expression</Font> (data_man.c 71)</center>
+<center><Font Size=+2>gmi_data_evaluate_expression</Font> (data_man.c 80)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3119,7 +3155,7 @@ The resulting value (as plain text) or NULL on error.
 
 <p><hr></p>
 <a name="gmi_dir"></a>
-<center><Font Size=+2>gmi_dir</Font> (data_man.c 88)</center>
+<center><Font Size=+2>gmi_dir</Font> (data_man.c 97)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4450,20 +4486,20 @@ updated.
 
 <Font Size=+1><u>Description</u></Font><p>
 
-Change variable. Returns the new value.
+Change variable. The new value replaces the @var{value} field.
 <p>
 
 
 <Font Size=+1><u>Return Value</u></Font><p>
 
-A new mi_results with the assigned value.
+!=0 OK
 <p>
 
 
 
 <p><hr></p>
 <a name="gmi_var_evaluate_expression"></a>
-<center><Font Size=+2>gmi_var_evaluate_expression</Font> (var_obj.c 326)</center>
+<center><Font Size=+2>gmi_var_evaluate_expression</Font> (var_obj.c 334)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4478,20 +4514,20 @@ A new mi_results with the assigned value.
 
 <Font Size=+1><u>Description</u></Font><p>
 
-Get current value for a variable.
+Fill the value field getting the current value for a variable.
 <p>
 
 
 <Font Size=+1><u>Return Value</u></Font><p>
 
-The current value (plain text) or NULL on error.
+!=0 OK, value contains the result.
 <p>
 
 
 
 <p><hr></p>
 <a name="gmi_var_list_children"></a>
-<center><Font Size=+2>gmi_var_list_children</Font> (var_obj.c 342)</center>
+<center><Font Size=+2>gmi_var_list_children</Font> (var_obj.c 359)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4506,13 +4542,14 @@ The current value (plain text) or NULL on error.
 
 <Font Size=+1><u>Description</u></Font><p>
 
-List children. It ONLY returns the first level information. :-(
+List children. It ONLY returns the first level information. :-(<br>
+  On success the child field contains the list of children.
 <p>
 
 
 <Font Size=+1><u>Return Value</u></Font><p>
 
-A new list of mi_gvar_children or NULL on error.
+!=0 OK
 <p>
 
 

@@ -1,4 +1,13 @@
-$Log$
+$Log$.
+Revision 1.9  2004/08/06 20:59:44  set
+* Fixed: The gdb dialog was amazingly slow. It was just the fact that I
+trusted in the non-blocking flag and sleep, but this annoys the scheduler
+and the solution is to just use select, which is the Right Thing To Do (TM)
+;-)
+* Modified: MIDebugger::EvalExpression now takes a const char * and cleans
+the error number before executing.
+* Added: Some very restricted function to read memory content.
+
 Revision 1.8  2004/08/04 20:07:31  set
 * Modified: The mi_gvar structure to be able to hold a tree of variables.
 * Fixed: mi_error_from_gdb not released at exit.

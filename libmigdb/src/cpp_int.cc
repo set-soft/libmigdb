@@ -27,6 +27,7 @@ MIDebugger::MIDebugger()
  h=NULL;
  aux_tty=NULL;
  waitingTempBkpt=0;
+ targetEndian=enUnknown;
 }
 
 /**[txh]********************************************************************
@@ -130,6 +131,7 @@ int MIDebugger::SelectTargetTTY(const char *exec, const char *args,
  if (state!=connected)
     return 0;
 
+ targetEndian=enUnknown;
  mode=m;
  if (!gmi_set_exec(h,exec,args))
     return 0;
@@ -225,6 +227,7 @@ int MIDebugger::SelectTargetRemote(const char *exec, const char *rparams,
 
  mode=dmRemote;
  preRun=true;
+ targetEndian=enUnknown;
  if (rtype==NULL)
     rtype="extended-remote";
 
@@ -252,6 +255,7 @@ mi_frames *MIDebugger::SelectTargetPID(const char *exec, int pid)
 
  mode=dmPID;
  preRun=true;
+ targetEndian=enUnknown;
 
  mi_frames *res=gmi_target_attach(h,pid);
  if (res)
@@ -948,3 +952,44 @@ int MIDebugger::AssigngVar(mi_gvar *var, const char *exp)
     return 0;
  return gmi_var_assign(h,var,exp);
 }
+
+char *MIDebugger::Show(const char *var)
+{
+ if (state==running || state==disconnected)
+    return 0;
+ // GDB 5.x doesn't reply all in the response record, just to the console :-(
+ h->catch_console=1;
+ if (h->catched_console)
+   {
+    free(h->catched_console);
+    h->catched_console=NULL;
+   }
+ char *res=gmi_gdb_show(h,var);
+ h->catch_console=0;
+ if (!res && h->catched_console)
+   {
+    res=h->catched_console;
+    h->catched_console=NULL;
+   }
+ return res;
+}
+
+MIDebugger::endianType MIDebugger::GetTargetEndian()
+{
+ if (targetEndian!=enUnknown)
+    return targetEndian;
+ if (state!=stopped && state!=target_specified)
+    return enUnknown;
+
+ char *end=Show("endian");
+ if (end)
+   {
+    if (strstr(end,"big"))
+       targetEndian=enBig;
+    else if (strstr(end,"little"))
+       targetEndian=enLittle;
+    free(end);
+   }
+ return targetEndian;
+}
+

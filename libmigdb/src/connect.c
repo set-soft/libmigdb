@@ -102,6 +102,7 @@ void mi_free_h(mi_h **handle)
  if (h->line)
     free(h->line);
  mi_free_output(h->po);
+ free(h->catched_console);
  free(h);
  *handle=NULL;
 }
@@ -174,12 +175,23 @@ int mi_get_response(mi_h *h)
     /* Tunneled streams callbacks. */
     if (o->type==MI_T_OUT_OF_BAND && o->stype==MI_ST_STREAM)
       {
+       char *aux;
        add=0;
        switch (o->sstype)
          {
           case MI_SST_CONSOLE:
+               aux=get_cstr(o);
                if (h->console)
-                  h->console(get_cstr(o),h->console_data);
+                  h->console(aux,h->console_data);
+               if (h->catch_console && aux)
+                 {
+                  h->catch_console--;
+                  if (!h->catch_console)
+                    {
+                     free(h->catched_console);
+                     h->catched_console=strdup(aux);
+                    }
+                 }
                break;
           case MI_SST_TARGET:
                /* This one seems to be useless. */

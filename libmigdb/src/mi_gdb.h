@@ -126,6 +126,9 @@ struct mi_h_struct
  void *to_gdb_echo_data;
  stream_cb from_gdb_echo;
  void *from_gdb_echo_data;
+ /* Ugly workaround for some of the show responses :-( */
+ int catch_console;
+ char *catched_console;
 };
 typedef struct mi_h_struct mi_h;
 
@@ -588,6 +591,7 @@ public:
 
  enum eState { disconnected, connected, target_specified, running, stopped };
  enum dMode  { dmX11, dmLinux, dmRemote, dmPID };
+ enum endianType { enUnknown, enLittle, enBig };
 
  int Connect(bool remote=false); /* remote is currently ignored. */
  int Disconnect();
@@ -698,12 +702,8 @@ public:
      return 0;
   return gmi_read_memory(h,exp,size,dest,&na,convAddr,addr);
  }
- char *Show(const char *var)
- {
-  if (state==running || state==disconnected)
-     return 0;
-  return gmi_gdb_show(h,var);
- }
+ char *Show(const char *var);
+ endianType GetTargetEndian();
 
  eState GetState() { return state; }
 
@@ -732,6 +732,7 @@ public:
 protected:
  eState state;
  dMode mode;
+ endianType targetEndian;
  bool  preRun;  // Remote targets starts running but outside main.
  mi_h *h;
  mi_aux_term *aux_tty;
