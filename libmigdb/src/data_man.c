@@ -32,6 +32,35 @@ Notes:@p
 results are sent to the console. So it looks like the best is to manually
 use -data-evaluate-expression to emulate it.@p
 
+2) GDB bug mi/1770: Affects gdb<=6.2, when you ask for the names of the
+registers you get it plus the name of the "pseudo-registers", but if you
+try to get the value of a pseudo-register you get an error saying the
+register number is invalid. I reported to gdb-patches@sources.redhat.com
+on 2004/08/25 and as I didn't get any answer I filled a bug report on
+2004/09/02. The patch to fix this annoying bug is:
+
+Index: gdb/mi/mi-main.c
+===================================================================
+RCS file: /cvs/src/src/gdb/mi/mi-main.c,v
+retrieving revision 1.64
+diff -u -r1.64 mi-main.c
+--- gdb/mi/mi-main.c    3 Aug 2004 00:57:27 -0000       1.64
++++ gdb/mi/mi-main.c    25 Aug 2004 14:12:50 -0000
+@@ -423,7 +423,7 @@
+      case, some entries of REGISTER_NAME will change depending upon
+      the particular processor being debugged.
+
+-  numregs = NUM_REGS;
++  numregs = NUM_REGS + NUM_PSEUDO_REGS;
+
+   if (argc == 0)
+     {
+----
+
+Note I had to remove an end of comment in the patch to include it here.
+This bug forced me to create another set of functions. The only way is to
+first get the values and then the names.
+
 ***************************************************************************/
 
 #include "mi_gdb.h"
@@ -83,6 +112,17 @@ void mi_data_disassemble_fl(mi_h *h, const char *file, int line, int lines,
 void mi_data_list_register_names(mi_h *h)
 {
  mi_send(h,"-data-list-register-names\n");
+}
+
+void mi_data_list_register_names_l(mi_h *h, mi_chg_reg *l)
+{
+ mi_send(h,"-data-list-register-names ");
+ while (l)
+   {
+    mi_send(h,"%d ",l->reg);
+    l=l->next;
+   }
+ mi_send(h,"\n");
 }
 
 void mi_data_list_changed_registers(mi_h *h)
@@ -158,10 +198,17 @@ mi_asm_insns *gmi_data_disassemble_fl(mi_h *h, const char *file, int line,
  return mi_get_asm_insns(h);
 }
 
+// Affected by gdb bug mi/1770
 mi_chg_reg *gmi_data_list_register_names(mi_h *h, int *how_many)
 {
  mi_data_list_register_names(h);
  return mi_get_list_registers(h,how_many);
+}
+
+int gmi_data_list_register_names_l(mi_h *h, mi_chg_reg *l)
+{
+ mi_data_list_register_names_l(h,l);
+ return mi_get_list_registers_l(h,l);
 }
 
 mi_chg_reg *gmi_data_list_changed_registers(mi_h *h)
@@ -175,5 +222,11 @@ int gmi_data_list_register_values(mi_h *h, enum mi_gvar_fmt fmt, mi_chg_reg *l)
 {
  mi_data_list_register_values(h,fmt,l);
  return mi_get_reg_values(h,l);
+}
+
+mi_chg_reg *gmi_data_list_all_register_values(mi_h *h, enum mi_gvar_fmt fmt, int *how_many)
+{
+ mi_data_list_register_values(h,fmt,NULL);
+ return mi_get_reg_values_l(h,how_many);
 }
 

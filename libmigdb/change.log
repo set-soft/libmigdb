@@ -1,4 +1,10 @@
-$Log$.
+$Log$
+Revision 1.17  2004/08/25 20:49:52  set
+* Modified: mi_error reset to MI_OK when connecting.
+* Modified: MIDebugger::TargetUnselect() to detach only if remote/pid is
+stopped.
+* Added: execute until address is reached (we had file:line only).
+
 Revision 1.16  2004/08/24 21:10:21  set
 * Modified: PID targets starts stopped.
 * Fixed: When debugging an attached process if gdb dies we failed to go to

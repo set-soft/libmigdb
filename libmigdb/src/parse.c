@@ -1782,3 +1782,82 @@ int mi_get_reg_values(mi_h *h, mi_chg_reg *l)
  return ok;
 }
 
+int mi_parse_list_regs_l(mi_results *r, mi_chg_reg *l)
+{
+ while (r && l)
+   {
+    if (r->type==t_const && !r->var)
+      {
+       free(l->name);
+       l->name=r->v.cstr;
+       r->v.cstr=NULL;
+       l=l->next;
+      }
+    r=r->next;
+   }
+
+ return !l && !r;
+}
+
+int mi_get_list_registers_l(mi_h *h, mi_chg_reg *l)
+{
+ mi_results *r=mi_res_done_var(h,"register-names");
+ int ok=0;
+
+ if (r && r->type==t_list)
+    ok=mi_parse_list_regs_l(r->v.rs,l);
+ mi_free_results(r);
+ return ok;
+}
+
+mi_chg_reg *mi_parse_reg_values_l(mi_results *r, int *how_many)
+{
+ mi_results *c;
+ mi_chg_reg *first=NULL, *cur=NULL;
+ *how_many=0;
+
+ while (r)
+   {
+    if (r->type==t_tuple && !r->var)
+      {
+       c=r->v.rs;
+       if (first)
+          cur=cur->next=mi_alloc_chg_reg();
+       else
+          first=cur=mi_alloc_chg_reg();
+       while (c)
+         {
+          if (c->type==t_const && c->var)
+            {
+             if (strcmp(c->var,"number")==0)
+               {
+                cur->reg=atoi(c->v.cstr);
+                (*how_many)++;
+               }
+             else if (strcmp(c->var,"value")==0)
+               {
+                cur->val=c->v.cstr;
+                c->v.cstr=NULL;
+               }
+            }
+          c=c->next;
+         }
+      }
+    r=r->next;
+   }
+
+ return first;
+}
+
+mi_chg_reg *mi_get_reg_values_l(mi_h *h, int *how_many)
+{
+ mi_results *r=mi_res_done_var(h,"register-values");
+ mi_chg_reg *rgs=NULL;
+
+ if (r && r->type==t_list)
+    rgs=mi_parse_reg_values_l(r->v.rs,how_many);
+ mi_free_results(r);
+ return rgs;
+}
+
+

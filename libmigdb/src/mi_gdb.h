@@ -479,8 +479,10 @@ mi_asm_insns *mi_get_asm_insns(mi_h *h);
 void mi_set_main_func(const char *name);
 const char *mi_get_main_func();
 mi_chg_reg *mi_get_list_registers(mi_h *h, int *how_many);
+int mi_get_list_registers_l(mi_h *h, mi_chg_reg *l);
 mi_chg_reg *mi_get_list_changed_regs(mi_h *h);
 int mi_get_reg_values(mi_h *h, mi_chg_reg *l);
+mi_chg_reg *mi_get_reg_values_l(mi_h *h, int *how_many);
 
 /* Allocation functions: */
 void *mi_calloc(size_t count, size_t sz);
@@ -599,9 +601,10 @@ mi_asm_insns *gmi_data_disassemble_se(mi_h *h, const char *start,
 mi_asm_insns *gmi_data_disassemble_fl(mi_h *h, const char *file, int line,
                                       int lines, int mode);
 mi_chg_reg *gmi_data_list_register_names(mi_h *h, int *how_many);
+int gmi_data_list_register_names_l(mi_h *h, mi_chg_reg *l);
 mi_chg_reg *gmi_data_list_changed_registers(mi_h *h);
 int gmi_data_list_register_values(mi_h *h, enum mi_gvar_fmt fmt, mi_chg_reg *l);
-mi_chg_reg *gmi_data_list_all_register_values(mi_h *h, int *how_many);
+mi_chg_reg *gmi_data_list_all_register_values(mi_h *h, enum mi_gvar_fmt fmt, int *how_many);
 
 /* Stack manipulation. */
 /* List of frames. Arguments aren't filled. */
@@ -845,11 +848,23 @@ public:
      return NULL;
   return gmi_data_list_register_names(h,how_many);
  }
+ int GetRegisterNames(mi_chg_reg *chg)
+ {
+  if (state!=target_specified && state!=stopped)
+     return 0;
+  return gmi_data_list_register_names_l(h,chg);
+ }
  int GetRegisterValues(mi_chg_reg *chg)
  {
   if (state!=stopped)
      return 0;
   return gmi_data_list_register_values(h,fm_natural,chg);
+ }
+ mi_chg_reg *GetRegisterValues(int *how_many)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_data_list_all_register_values(h,fm_natural,how_many);
  }
  mi_chg_reg *GetChangedRegisters()
  {
