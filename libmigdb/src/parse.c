@@ -816,8 +816,41 @@ const char *mi_format_enum_to_str(enum mi_gvar_fmt format)
     case fm_octal:
          fmt="octal";
          break;
+    case fm_raw:
+         fmt="raw";
+         break;
     default:
          fmt="unknown";
+   }
+ return fmt;
+}
+
+char mi_format_enum_to_char(enum mi_gvar_fmt format)
+{
+ char fmt;
+
+ switch (format)
+   {
+    case fm_natural:
+         fmt='N';
+         break;
+    case fm_binary:
+         fmt='t';
+         break;
+    case fm_decimal:
+         fmt='d';
+         break;
+    case fm_hexadecimal:
+         fmt='x';
+         break;
+    case fm_octal:
+         fmt='o';
+         break;
+    case fm_raw:
+         fmt='r';
+         break;
+    default:
+         fmt=' ';
    }
  return fmt;
 }
@@ -1508,3 +1541,244 @@ int mi_get_read_memory(mi_h *h, unsigned char *dest, unsigned ws, int *na,
  mi_free_results(res);
  return ok==2;
 }
+
+mi_asm_insn *mi_parse_insn(mi_results *c)
+{
+ mi_asm_insn *res=NULL, *cur=NULL;
+ mi_results *sub;
+ char *end;
+
+ while (c)
+   {
+    if (c->type==t_tuple)
+      {
+       if (!res)
+          res=cur=mi_alloc_asm_insn();
+       else
+         {
+          cur->next=mi_alloc_asm_insn();
+          cur=cur->next;
+         }
+       if (!cur)
+         {
+          mi_free_asm_insn(res);
+          return NULL;
+         }
+       sub=c->v.rs;
+       while (sub)
+         {
+          if (sub->type==t_const)
+            {
+             if (strcmp(sub->var,"address")==0)
+                cur->addr=(void *)strtol(sub->v.cstr,&end,0);
+             else if (strcmp(sub->var,"func-name")==0)
+               {
+                cur->func=sub->v.cstr;
+                sub->v.cstr=NULL;
+               }
+             else if (strcmp(sub->var,"offset")==0)
+                cur->offset=atoi(sub->v.cstr);
+             else if (strcmp(sub->var,"inst")==0)
+               {
+                cur->inst=sub->v.cstr;
+                sub->v.cstr=NULL;
+               }
+            }
+          sub=sub->next;
+         }
+      }
+    c=c->next;
+   }
+ return res;
+}
+
+mi_asm_insns *mi_parse_insns(mi_results *c)
+{
+ mi_asm_insns *res=NULL, *cur=NULL;
+ mi_results *sub;
+
+ while (c)
+   {
+    if (c->var)
+      {
+       if (strcmp(c->var,"src_and_asm_line")==0 && c->type==t_tuple)
+         {
+          if (!res)
+             res=cur=mi_alloc_asm_insns();
+          else
+            {
+             cur->next=mi_alloc_asm_insns();
+             cur=cur->next;
+            }
+          if (!cur)
+            {
+             mi_free_asm_insns(res);
+             return NULL;
+            }
+          sub=c->v.rs;
+          while (sub)
+            {
+             if (sub->var)
+               {
+                if (sub->type==t_const)
+                  {
+                   if (strcmp(sub->var,"line")==0)
+                      cur->line=atoi(sub->v.cstr);
+                   else if (strcmp(sub->var,"file")==0)
+                     {
+                      cur->file=sub->v.cstr;
+                      sub->v.cstr=NULL;
+                     }
+                  }
+                else if (sub->type==t_list)
+                  {
+                   if (strcmp(sub->var,"line_asm_insn")==0)
+                      cur->ins=mi_parse_insn(sub->v.rs);
+                  }
+               }
+             sub=sub->next;
+            }
+         }
+      }
+    else
+      {/* No source line, just instructions */
+       res=mi_alloc_asm_insns();
+       res->ins=mi_parse_insn(c);
+       break;
+      }
+    c=c->next;
+   }
+ return res;
+}
+
+
+mi_asm_insns *mi_get_asm_insns(mi_h *h)
+{
+ mi_results *r=mi_res_done_var(h,"asm_insns");
+ mi_asm_insns *f=NULL;
+
+ if (r && r->type==t_list)
+    f=mi_parse_insns(r->v.rs);
+ mi_free_results(r);
+ return f;
+}
+
+mi_chg_reg *mi_parse_list_regs(mi_results *r, int *how_many)
+{
+ mi_results *c=r;
+ int cregs=0;
+ mi_chg_reg *first=NULL, *cur=NULL;
+
+ /* Create the list. */
+ while (c)
+   {
+    if (c->type==t_const && !c->var)
+      {
+       if (first)
+          cur=cur->next=mi_alloc_chg_reg();
+       else
+          first=cur=mi_alloc_chg_reg();
+       cur->name=c->v.cstr;
+       cur->reg=cregs++;
+       c->v.cstr=NULL;
+      }
+    c=c->next;
+   }
+ if (how_many)
+    *how_many=cregs;
+
+ return first;
+}
+
+mi_chg_reg *mi_get_list_registers(mi_h *h, int *how_many)
+{
+ mi_results *r=mi_res_done_var(h,"register-names");
+ mi_chg_reg *l=NULL;
+
+ if (r && r->type==t_list)
+    l=mi_parse_list_regs(r->v.rs,how_many);
+ mi_free_results(r);
+ return l;
+}
+
+mi_chg_reg *mi_parse_list_changed_regs(mi_results *r)
+{
+ mi_results *c=r;
+ mi_chg_reg *first=NULL, *cur=NULL;
+
+ /* Create the list. */
+ while (c)
+   {
+    if (c->type==t_const && !c->var)
+      {
+       if (first)
+          cur=cur->next=mi_alloc_chg_reg();
+       else
+          first=cur=mi_alloc_chg_reg();
+       cur->reg=atoi(c->v.cstr);
+      }
+    c=c->next;
+   }
+
+ return first;
+}
+
+mi_chg_reg *mi_get_list_changed_regs(mi_h *h)
+{
+ mi_results *r=mi_res_done_var(h,"changed-registers");
+ mi_chg_reg *changed=NULL;
+
+ if (r && r->type==t_list)
+    changed=mi_parse_list_changed_regs(r->v.rs);
+ mi_free_results(r);
+ return changed;
+}
+
+int mi_parse_reg_values(mi_results *r, mi_chg_reg *l)
+{
+ mi_results *c;
+
+ while (r && l)
+   {
+    if (r->type==t_tuple && !r->var)
+      {
+       c=r->v.rs;
+       while (c)
+         {
+          if (c->type==t_const && c->var)
+            {
+             if (strcmp(c->var,"number")==0)
+               {
+                if (atoi(c->v.cstr)!=l->reg)
+                  {
+                   mi_error=MI_PARSER;
+                   return 0;
+                  }
+               }
+             else if (strcmp(c->var,"value")==0)
+               {
+                l->val=c->v.cstr;
+                c->v.cstr=NULL;
+               }
+            }
+          c=c->next;
+         }
+      }
+    r=r->next;
+    l=l->next;
+   }
+
+ return !l && !r;
+}
+
+int mi_get_reg_values(mi_h *h, mi_chg_reg *l)
+{
+ mi_results *r=mi_res_done_var(h,"register-values");
+ int ok=0;
+
+ if (r && r->type==t_list)
+    ok=mi_parse_reg_values(r->v.rs,l);
+ mi_free_results(r);
+ return ok;
+}
+

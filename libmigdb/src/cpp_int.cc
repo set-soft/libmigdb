@@ -1004,3 +1004,31 @@ int MIDebugger::GetErrorNumberSt()
  return mi_error;
 }
 
+int MIDebugger::UpdateRegisters(mi_chg_reg *regs)
+{
+ int updated=0;
+ mi_chg_reg *chg=GetChangedRegisters();
+ if (chg)
+   {
+    mi_chg_reg *r=regs, *c;
+    while (r)
+      {
+       c=chg;
+       while (c && c->reg!=r->reg)
+          c=c->next;
+       if (c)
+         {
+          r->updated=1;
+          free(r->val);
+          r->val=c->val;
+          c->val=NULL;
+          updated++;
+         }
+       else
+          r->updated=0;
+       r=r->next;
+      }
+   }
+ return updated;
+}
+

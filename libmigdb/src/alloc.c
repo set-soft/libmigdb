@@ -33,32 +33,32 @@ char *mi_malloc(size_t sz)
  return res;
 }
 
-mi_results *mi_alloc_results()
+mi_results *mi_alloc_results(void)
 {
  return (mi_results *)mi_calloc1(sizeof(mi_results));
 }
 
-mi_output *mi_alloc_output()
+mi_output *mi_alloc_output(void)
 {
  return (mi_output *)mi_calloc1(sizeof(mi_output));
 }
 
-mi_frames *mi_alloc_frames()
+mi_frames *mi_alloc_frames(void)
 {
  return (mi_frames *)mi_calloc1(sizeof(mi_frames));
 }
 
-mi_gvar *mi_alloc_gvar()
+mi_gvar *mi_alloc_gvar(void)
 {
  return (mi_gvar *)mi_calloc1(sizeof(mi_gvar));
 }
 
-mi_gvar_chg *mi_alloc_gvar_chg()
+mi_gvar_chg *mi_alloc_gvar_chg(void)
 {
  return (mi_gvar_chg *)mi_calloc1(sizeof(mi_gvar_chg));
 }
 
-mi_bkpt *mi_alloc_bkpt()
+mi_bkpt *mi_alloc_bkpt(void)
 {
  mi_bkpt *b=(mi_bkpt *)mi_calloc1(sizeof(mi_bkpt));
  if (b)
@@ -69,14 +69,29 @@ mi_bkpt *mi_alloc_bkpt()
  return b;
 }
 
-mi_wp *mi_alloc_wp()
+mi_wp *mi_alloc_wp(void)
 {
  return (mi_wp *)mi_calloc1(sizeof(mi_wp));
 }
 
-mi_stop *mi_alloc_stop()
+mi_stop *mi_alloc_stop(void)
 {
  return (mi_stop *)mi_calloc1(sizeof(mi_stop));
+}
+
+mi_asm_insns *mi_alloc_asm_insns(void)
+{
+ return (mi_asm_insns *)mi_calloc1(sizeof(mi_asm_insns));
+}
+
+mi_asm_insn *mi_alloc_asm_insn(void)
+{
+ return (mi_asm_insn *)mi_calloc1(sizeof(mi_asm_insn));
+}
+
+mi_chg_reg *mi_alloc_chg_reg(void)
+{
+ return (mi_chg_reg *)mi_calloc1(sizeof(mi_chg_reg));
 }
 
 /*****************************************************************************
@@ -237,3 +252,56 @@ void mi_free_wp(mi_wp *wp)
     wp=aux;
    }
 }
+
+void mi_free_asm_insns(mi_asm_insns *i)
+{
+ mi_asm_insns *aux;
+
+ while (i)
+   {
+    free(i->file);
+    mi_free_asm_insn(i->ins);
+    aux=i->next;
+    free(i);
+    i=aux;
+   }
+}
+
+void mi_free_asm_insn(mi_asm_insn *i)
+{
+ mi_asm_insn *aux;
+
+ while (i)
+   {
+    free(i->func);
+    free(i->inst);
+    aux=i->next;
+    free(i);
+    i=aux;
+   }
+}
+
+/*void mi_free_charp_list(char **l)
+{
+ char **c=l;
+ while (c)
+   {
+    free(*c);
+    c++;
+   }
+ free(l);
+}*/
+
+void mi_free_chg_reg(mi_chg_reg *r)
+{
+ mi_chg_reg *aux;
+ while (r)
+   {
+    free(r->val);
+    free(r->name);
+    aux=r->next;
+    free(r);
+    r=aux;
+   }
+}
+

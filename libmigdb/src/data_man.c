@@ -10,10 +10,10 @@
 @<pre>
 gdb command:                       Implemented?
 
--data-disassemble                  No
+-data-disassemble                  Yes
 -data-evaluate-expression          Yes
 -data-list-changed-registers       No
--data-list-register-names          No
+-data-list-register-names          Yes
 -data-list-register-values         No
 -data-read-memory                  No
 -display-delete                    N.A. (delete display)
@@ -67,6 +67,40 @@ void mi_data_read_memory_hx(mi_h *h, const char *exp, unsigned ws,
     mi_send(h,"-data-read-memory \"%s\" x %d 1 %d\n",exp,ws,c);
 }
 
+void mi_data_disassemble_se(mi_h *h, const char *start, const char *end,
+                            int mode)
+{
+ mi_send(h,"-data-disassemble -s \"%s\" -e \"%s\" -- %d\n",start,end,mode);
+}
+
+void mi_data_disassemble_fl(mi_h *h, const char *file, int line, int lines,
+                            int mode)
+{
+ mi_send(h,"-data-disassemble -f \"%s\" -l %d -n %d -- %d\n",file,line,lines,
+         mode);
+}
+
+void mi_data_list_register_names(mi_h *h)
+{
+ mi_send(h,"-data-list-register-names\n");
+}
+
+void mi_data_list_changed_registers(mi_h *h)
+{
+ mi_send(h,"-data-list-changed-registers\n");
+}
+
+void mi_data_list_register_values(mi_h *h, enum mi_gvar_fmt fmt, mi_chg_reg *l)
+{
+ mi_send(h,"-data-list-register-values %c ",mi_format_enum_to_char(fmt));
+ while (l)
+   {
+    mi_send(h,"%d ",l->reg);
+    l=l->next;
+   }
+ mi_send(h,"\n");
+}
+
 /* High level versions. */
 
 /**[txh]********************************************************************
@@ -108,5 +142,38 @@ int gmi_read_memory(mi_h *h, const char *exp, unsigned size,
 {
  mi_data_read_memory_hx(h,exp,1,size,convAddr);
  return mi_get_read_memory(h,dest,1,na,addr);
+}
+
+mi_asm_insns *gmi_data_disassemble_se(mi_h *h, const char *start,
+                                      const char *end, int mode)
+{
+ mi_data_disassemble_se(h,start,end,mode);
+ return mi_get_asm_insns(h);
+}
+
+mi_asm_insns *gmi_data_disassemble_fl(mi_h *h, const char *file, int line,
+                                      int lines, int mode)
+{
+ mi_data_disassemble_fl(h,file,line,lines,mode);
+ return mi_get_asm_insns(h);
+}
+
+mi_chg_reg *gmi_data_list_register_names(mi_h *h, int *how_many)
+{
+ mi_data_list_register_names(h);
+ return mi_get_list_registers(h,how_many);
+}
+
+mi_chg_reg *gmi_data_list_changed_registers(mi_h *h)
+{
+ mi_error=MI_OK;
+ mi_data_list_changed_registers(h);
+ return mi_get_list_changed_regs(h);
+}
+
+int gmi_data_list_register_values(mi_h *h, enum mi_gvar_fmt fmt, mi_chg_reg *l)
+{
+ mi_data_list_register_values(h,fmt,l);
+ return mi_get_reg_values(h,l);
 }
 

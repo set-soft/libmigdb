@@ -1,4 +1,12 @@
-$Log$
+$Log$.
+Revision 1.13  2004/08/13 20:36:08  set
+* Modified: The mechanism to set gdb and xterm binaries. Now you can get
+the actual default (it searches in PATH) and set a new value that's copied.
+* Added: Functions to set the "main" function.
+* Added: Time out callback to catch time-outs in gdb response.
+* Added: Mechanism to detect gdb died and go to disconnected state. We
+already found an operation that makes gdb die.
+
 Revision 1.12  2004/08/12 21:21:43  set
 * Added: Command to get info about the threads. It uses a partially
 implemented gdb functionality.

@@ -63,6 +63,9 @@ enum mi_val_type { t_const, t_tuple, t_list };
 
 #define MI_DEFAULT_TIME_OUT 10
 
+#define MI_DIS_ASM        0
+#define MI_DIS_SRC_ASM    1
+
 #define MI_VERSION_STR "0.8.4"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
@@ -208,7 +211,9 @@ struct mi_aux_term_struct
 typedef struct mi_aux_term_struct mi_aux_term;
 
 enum mi_gvar_fmt { fm_natural=0, fm_binary=1, fm_decimal=2, fm_hexadecimal=3,
-                   fm_octal=4 };
+                   fm_octal=4,
+                   /* Only for registers format: */
+                   fm_raw=5 };
 enum mi_gvar_lang { lg_unknown=0, lg_c, lg_cpp, lg_java };
 
 #define MI_ATTR_DONT_KNOW   0
@@ -257,6 +262,42 @@ struct mi_gvar_chg_struct
  struct mi_gvar_chg_struct *next;
 };
 typedef struct mi_gvar_chg_struct mi_gvar_chg;
+
+
+/* A list of assembler instructions. */
+struct mi_asm_insn_struct
+{
+ void *addr;
+ char *func;
+ unsigned offset;
+ char *inst;
+
+ struct mi_asm_insn_struct *next;
+};
+typedef struct mi_asm_insn_struct mi_asm_insn;
+
+/* A list of source lines containing assembler instructions. */
+struct mi_asm_insns_struct
+{
+ char *file;
+ int line;
+ mi_asm_insn *ins;
+
+ struct mi_asm_insns_struct *next;
+};
+typedef struct mi_asm_insns_struct mi_asm_insns;
+
+/* Changed register. */
+struct mi_chg_reg_struct
+{
+ int reg;
+ char *val;
+ char *name;
+ char updated;
+
+ struct mi_chg_reg_struct *next;
+};
+typedef struct mi_chg_reg_struct mi_chg_reg;
 
 /*
  Examining gdb sources and looking at docs I can see the following "stop"
@@ -407,6 +448,7 @@ int mi_get_thread_ids(mi_output *res, int **list);
 mi_gvar *mi_res_gvar(mi_h *h, mi_gvar *cur, const char *expression);
 enum mi_gvar_fmt mi_format_str_to_enum(const char *format);
 const char *mi_format_enum_to_str(enum mi_gvar_fmt format);
+char mi_format_enum_to_char(enum mi_gvar_fmt format);
 enum mi_gvar_lang mi_lang_str_to_enum(const char *lang);
 const char *mi_lang_enum_to_str(enum mi_gvar_lang lang);
 int mi_res_changelist(mi_h *h, mi_gvar_chg **changed);
@@ -419,23 +461,29 @@ enum mi_stop_reason mi_reason_str_to_enum(const char *s);
 const char *mi_reason_enum_to_str(enum mi_stop_reason r);
 int mi_get_read_memory(mi_h *h, unsigned char *dest, unsigned ws, int *na,
                        unsigned long *addr);
+mi_asm_insns *mi_get_asm_insns(mi_h *h);
 /* Starting point of the program. */
 void mi_set_main_func(const char *name);
 const char *mi_get_main_func();
-                       
+mi_chg_reg *mi_get_list_registers(mi_h *h, int *how_many);
+mi_chg_reg *mi_get_list_changed_regs(mi_h *h);
+int mi_get_reg_values(mi_h *h, mi_chg_reg *l);
 
 /* Allocation functions: */
 void *mi_calloc(size_t count, size_t sz);
 void *mi_calloc1(size_t sz);
 char *mi_malloc(size_t sz);
-mi_results       *mi_alloc_results();
-mi_output        *mi_alloc_output();
-mi_frames        *mi_alloc_frames();
-mi_gvar          *mi_alloc_gvar();
-mi_gvar_chg      *mi_alloc_gvar_chg();
-mi_bkpt          *mi_alloc_bkpt();
-mi_wp            *mi_alloc_wp();
-mi_stop          *mi_alloc_stop();
+mi_results       *mi_alloc_results(void);
+mi_output        *mi_alloc_output(void);
+mi_frames        *mi_alloc_frames(void);
+mi_gvar          *mi_alloc_gvar(void);
+mi_gvar_chg      *mi_alloc_gvar_chg(void);
+mi_bkpt          *mi_alloc_bkpt(void);
+mi_wp            *mi_alloc_wp(void);
+mi_stop          *mi_alloc_stop(void);
+mi_asm_insns     *mi_alloc_asm_insns(void);
+mi_asm_insn      *mi_alloc_asm_insn(void);
+mi_chg_reg       *mi_alloc_chg_reg(void);
 void mi_free_output(mi_output *r);
 void mi_free_output_but(mi_output *r, mi_output *no, mi_results *no_r);
 void mi_free_frames(mi_frames *f);
@@ -446,6 +494,10 @@ void mi_free_gvar(mi_gvar *v);
 void mi_free_gvar_chg(mi_gvar_chg *p);
 void mi_free_wp(mi_wp *wp);
 void mi_free_stop(mi_stop *s);
+void mi_free_asm_insns(mi_asm_insns *i);
+void mi_free_asm_insn(mi_asm_insn *i);
+void mi_free_charp_list(char **l);
+void mi_free_chg_reg(mi_chg_reg *r);
 
 /* Porgram control: */
 /* Specify the executable and arguments for local debug. */
@@ -528,6 +580,13 @@ int gmi_dir(mi_h *h, char *path);
 int gmi_read_memory(mi_h *h, const char *exp, unsigned size,
                     unsigned char *dest, int *na, int convAddr,
                     unsigned long *addr);
+mi_asm_insns *gmi_data_disassemble_se(mi_h *h, const char *start,
+                                      const char *end, int mode);
+mi_asm_insns *gmi_data_disassemble_fl(mi_h *h, const char *file, int line,
+                                      int lines, int mode);
+mi_chg_reg *gmi_data_list_register_names(mi_h *h, int *how_many);
+mi_chg_reg *gmi_data_list_changed_registers(mi_h *h);
+int gmi_data_list_register_values(mi_h *h, enum mi_gvar_fmt fmt, mi_chg_reg *l);
 
 /* Stack manipulation. */
 /* List of frames. Arguments aren't filled. */
@@ -746,6 +805,43 @@ public:
      return NULL;
   return gmi_thread_select(h,id);
  }
+ mi_asm_insns *Disassemble(const char *start, const char *end, int mode)
+ {
+  if (state!=stopped)
+     return NULL;
+  return gmi_data_disassemble_se(h,start,end,mode);
+ }
+ mi_asm_insns *Disassemble(const char *file, int line, int lines, int mode)
+ {
+  if (state!=stopped)
+     return NULL;
+  return gmi_data_disassemble_fl(h,file,line,lines,mode);
+ }
+ mi_chg_reg *GetRegisterNames(int *how_many)
+ {
+  if (state!=target_specified && state!=stopped)
+     return NULL;
+  return gmi_data_list_register_names(h,how_many);
+ }
+ int GetRegisterValues(mi_chg_reg *chg)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_data_list_register_values(h,fm_natural,chg);
+ }
+ mi_chg_reg *GetChangedRegisters()
+ {
+  if (state!=stopped)
+     return NULL;
+  mi_chg_reg *chg=gmi_data_list_changed_registers(h);
+  if (chg && !gmi_data_list_register_values(h,fm_natural,chg))
+    {
+     mi_free_chg_reg(chg);
+     chg=NULL;
+    }
+  return chg;
+ }
+ int UpdateRegisters(mi_chg_reg *regs);
 
  endianType GetTargetEndian();
  eState GetState() { return state; }
