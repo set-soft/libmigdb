@@ -1,1 +1,8 @@
-$Log$
+$Log$.
+Revision 1.1  2004/07/20 20:38:42  set
+* Added: C++ wrapper to attach to a running process. Also modified the low
+level function to return the current frame.
+* Modified: Now if we get an error while the state is running we assume the
+previous "running" was wrong and we are in fact stopped. Until now I saw
+two cases where gdb says we are running and then shows an error.
+
