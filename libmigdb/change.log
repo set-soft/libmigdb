@@ -1,4 +1,8 @@
-$Log$
+$Log$.
+Revision 1.26  2004/10/19 16:21:40  set
+* Fixed: FinishFun member must set the state to running if the command
+succeed.
+
 Revision 1.25  2004/10/18 19:39:17  set
 * Modified: Version to 0.8.7.
 

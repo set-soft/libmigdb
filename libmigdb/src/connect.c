@@ -30,6 +30,7 @@ in a row.
 #include <errno.h>
 #include <signal.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include "mi_gdb.h"
 
 #ifndef TEMP_FAILURE_RETRY
