@@ -133,6 +133,7 @@ typedef struct mi_h_struct mi_h;
 
 enum mi_bkp_type { t_unknown=0, t_breakpoint=1 };
 enum mi_bkp_disp { d_unknown=0, d_keep=1, d_del=2 };
+enum mi_bkp_mode { m_file_line=0, m_function=1, m_file_function=2, m_address=3 };
 
 struct mi_bkpt_struct
 {
@@ -148,7 +149,9 @@ struct mi_bkpt_struct
 
  /* For the user: */
  char *cond;
+ char *file_abs;
  int thread;
+ enum mi_bkp_mode mode;
  struct mi_bkpt_struct *next;
 };
 typedef struct mi_bkpt_struct mi_bkpt;
