@@ -98,7 +98,7 @@ void print_gvar(mi_gvar *v)
    }
  printf("Variable name: '%s', type: '%s', number of children: %d format: %s expression: %s lang: %s editable: %c\n",
         v->name,v->type,v->numchild,mi_format_enum_to_str(v->format),
-        v->expression,mi_lang_enum_to_str(v->lang),v->attr & MI_ATTR_EDITABLE ? 'y' : 'n');
+        v->exp,mi_lang_enum_to_str(v->lang),v->attr & MI_ATTR_EDITABLE ? 'y' : 'n');
 }
 
 void print_update(mi_gvar_chg *changed)
@@ -116,18 +116,18 @@ void print_update(mi_gvar_chg *changed)
    }
 }
 
-void print_children(mi_gvar_children *ch)
+void print_children(mi_gvar *ch)
 {
  int i;
- mi_gvar_child *s;
+ mi_gvar *s;
 
- if (!ch)
+ if (!ch->child)
    {
     printf("Error! getting children list\n");
     return;
    }
  printf("\nChildren List (%d):\n",ch->numchild);
- for (i=0, s=ch->c; i<ch->numchild; s++, i++)
+ for (i=0, s=ch->child; i<ch->numchild; s++, i++)
     {
      printf("Name: %s Exp: %s Children: %d",s->name,s->exp,s->numchild);
      if (s->type)

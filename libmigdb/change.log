@@ -1,4 +1,9 @@
-$Log$.
+$Log$
+Revision 1.23  2004/10/15 23:50:37  set
+* Added: [Cygwin] Some minimal support. Now when the target is selected we
+tell gdb to use a new window. It seems to work but the new window have some
+serious problems.
+
 Revision 1.22  2004/09/16 23:18:26  set
 * Modified: To compile with Cygwin. It doesn't mean it works, just
 compiles.

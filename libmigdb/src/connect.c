@@ -28,6 +28,8 @@ in a row.
 #include <stdarg.h>
 #include <limits.h>
 #include <errno.h>
+#include <signal.h>
+#include <sys/stat.h>
 #include "mi_gdb.h"
 
 #ifndef TEMP_FAILURE_RETRY

@@ -14,6 +14,7 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> /* pid_t */
 
 #define MI_OK                      0
 #define MI_OUT_OF_MEMORY           1

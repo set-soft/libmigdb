@@ -98,7 +98,7 @@ void print_gvar(mi_gvar *v)
    }
  printf("Variable name: '%s', type: '%s', number of children: %d format: %s expression: %s lang: %s editable: %c\n",
         v->name,v->type,v->numchild,mi_format_enum_to_str(v->format),
-        v->expression,mi_lang_enum_to_str(v->lang),v->attr & MI_ATTR_EDITABLE ? 'y' : 'n');
+        v->exp,mi_lang_enum_to_str(v->lang),v->attr & MI_ATTR_EDITABLE ? 'y' : 'n');
 }
 
 void print_update(mi_gvar_chg *changed)
@@ -116,18 +116,18 @@ void print_update(mi_gvar_chg *changed)
    }
 }
 
-void print_children(mi_gvar_children *ch)
+void print_children(mi_gvar *ch)
 {
  int i;
- mi_gvar_child *s;
+ mi_gvar *s;
 
- if (!ch)
+ if (!ch->child)
    {
     printf("Error! getting children list\n");
     return;
    }
  printf("\nChildren List (%d):\n",ch->numchild);
- for (i=0, s=ch->c; i<ch->numchild; s++, i++)
+ for (i=0, s=ch->child; i<ch->numchild; s++, i++)
     {
      printf("Name: %s Exp: %s Children: %d",s->name,s->exp,s->numchild);
      if (s->type)
@@ -150,9 +150,8 @@ int main(int argc, char *argv[])
  mi_h *h;
  mi_gvar *gv, *gv2;
  mi_gvar_chg *changed;
- mi_results *rs;
- mi_gvar_children *ch;
  char *value;
+ int r_assign;
 
  /* You can use any gdb you want: */
  /*mi_set_gdb_exe("/usr/src/gdb-6.1.1/gdb/gdb");*/
@@ -268,7 +267,7 @@ int main(int argc, char *argv[])
  print_gvar(gv);
 
  /* Continue execution. */
- if (!gmi_exec_until(h,"target_frames.cc",14))
+ if (!gmi_exec_until(h,"target_frames.cc",21))
    {
     printf("Error in exec until!\n");
     mi_disconnect(h);
@@ -284,21 +283,18 @@ int main(int argc, char *argv[])
  print_update(changed);
  mi_free_gvar_chg(changed);
 
- rs=gmi_var_assign(h,gv,"i+5");
- if (rs && rs->type==t_const)
-    printf("\nAssigned v=%s\n\n",rs->v.cstr);
- mi_free_results(rs);
+ r_assign=gmi_var_assign(h,gv,"i+5");
+ if (r_assign && gv->value)
+    printf("\nAssigned v=%s\n\n",gv->value);
 
- ch=gmi_var_list_children(h,gv2);
- print_children(ch);
- mi_free_children(ch);
+ gmi_var_list_children(h,gv2);
+ print_children(gv2);
 
- value=gmi_var_evaluate_expression(h,gv2);
- printf("\n%s = %s\n\n",gv2->expression,value);
- free(value);
+ gmi_var_evaluate_expression(h,gv2);
+ printf("\n%s = %s\n\n",gv2->exp,gv2->value);
 
- value=gmi_data_evaluate_expression(h,gv2->expression);
- printf("\n%s = %s\n\n",gv2->expression,value);
+ value=gmi_data_evaluate_expression(h,gv2->exp);
+ printf("\n%s = %s\n\n",gv2->exp,value);
  free(value);
 
  gmi_var_delete(h,gv);
@@ -326,7 +322,7 @@ int main(int argc, char *argv[])
  mi_disconnect(h);
  /* Wait 5 seconds and close the auxiliar terminal. */
  printf("Waiting 5 seconds\n");
- //sleep(5);
+ sleep(5);
  gmi_end_aux_term(xterm_tty);
 
  return 0;

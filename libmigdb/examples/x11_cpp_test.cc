@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 
  /* Wait 5 seconds and close the auxiliar terminal. */
  printf("Waiting 5 seconds\n");
- //sleep(5);
+ sleep(5);
 
  return 0;
 }
