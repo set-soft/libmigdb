@@ -1,4 +1,7 @@
-$Log$.
+$Log$
+Revision 1.25  2004/10/18 19:39:17  set
+* Modified: Version to 0.8.7.
+
 Revision 1.24  2004/10/18 19:35:40  set
 * Fixed: Various examples to compile with current code.
 * Fixed: Some missing headers. Needed to compile on BSD systems.

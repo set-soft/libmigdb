@@ -791,7 +791,10 @@ int MIDebugger::FinishFun()
 {
  if (state!=stopped)
     return 0;
- return gmi_exec_finish(h);
+ int res=gmi_exec_finish(h);
+ if (res)
+    state=running;
+ return res;
 }
 
 /**[txh]********************************************************************
