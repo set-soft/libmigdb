@@ -1,4 +1,8 @@
-$Log$
+$Log$.
+Revision 1.24  2004/10/18 19:35:40  set
+* Fixed: Various examples to compile with current code.
+* Fixed: Some missing headers. Needed to compile on BSD systems.
+
 Revision 1.23  2004/10/15 23:50:37  set
 * Added: [Cygwin] Some minimal support. Now when the target is selected we
 tell gdb to use a new window. It seems to work but the new window have some
