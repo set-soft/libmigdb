@@ -795,12 +795,13 @@ mi_gvar *mi_get_gvar(mi_output *o, mi_gvar *cur, const char *expression)
 {
  mi_results *r;
  mi_gvar *res=cur ? cur : mi_alloc_gvar();
+ int l;
 
  if (!res)
     return res;
  r=o->c;
  if (expression)
-    res->expression=strdup(expression);
+    res->exp=strdup(expression);
  while (r)
    {
     if (r->type==t_const)
@@ -820,6 +821,9 @@ mi_gvar *mi_get_gvar(mi_output *o, mi_gvar *cur, const char *expression)
           free(res->type);
           res->type=r->v.cstr;
           r->v.cstr=NULL;
+          l=strlen(res->type);
+          if (l && res->type[l-1]=='*')
+             res->ispointer=1;
          }
        else if (strcmp(r->var,"lang")==0)
          {
@@ -827,8 +831,8 @@ mi_gvar *mi_get_gvar(mi_output *o, mi_gvar *cur, const char *expression)
          }
        else if (strcmp(r->var,"exp")==0)
          {
-          free(res->expression);
-          res->expression=r->v.cstr;
+          free(res->exp);
+          res->exp=r->v.cstr;
           r->v.cstr=NULL;
          }
        else if (strcmp(r->var,"format")==0)
@@ -992,77 +996,74 @@ int mi_res_changelist(mi_h *h, mi_gvar_chg **changed)
  return count;
 }
 
-mi_gvar_children *mi_get_children(mi_results *ch, int count)
+int mi_get_children(mi_results *ch, mi_gvar *v)
 {
- mi_gvar_children *c=mi_alloc_gvar_children();
- int ok=0, i=0;
+ mi_gvar *cur=NULL, *aux;
+ int i=0, count=v->numchild, l;
 
- if (c)
+ while (ch)
    {
-    mi_gvar_child *s;
-
-    c->numchild=count;
-    c->c=mi_alloc_gvar_child(count);
-    s=c->c;
-    if (s)
+    if (strcmp(ch->var,"child")==0 && ch->type==t_tuple && i<count)
       {
-       while (ch)
+       mi_results *r=ch->v.rs;
+       aux=mi_alloc_gvar();
+       if (!aux)
+          return 0;
+       if (!v->child)
+          v->child=aux;
+       else
+          cur->next=aux;
+       cur=aux;
+       cur->parent=v;
+       cur->depth=v->depth+1;
+
+       while (r)
          {
-          if (strcmp(ch->var,"child")==0 && ch->type==t_tuple && i<count)
+          if (r->type==t_const)
             {
-             mi_results *r=ch->v.rs;
-
-             while (r)
+             if (strcmp(r->var,"name")==0)
                {
-                if (r->type==t_const)
-                  {
-                   if (strcmp(r->var,"name")==0)
-                     {
-                      s->name=r->v.cstr;
-                      r->v.cstr=NULL;
-                     }
-                   else if (strcmp(r->var,"exp")==0)
-                     {
-                      s->exp=r->v.cstr;
-                      r->v.cstr=NULL;
-                     }
-                   else if (strcmp(r->var,"type")==0)
-                     {
-                      s->type=r->v.cstr;
-                      r->v.cstr=NULL;
-                     }
-                   else if (strcmp(r->var,"value")==0)
-                     {
-                      s->value=r->v.cstr;
-                      r->v.cstr=NULL;
-                     }                     
-                   else if (strcmp(r->var,"numchild")==0)
-                     {
-                      s->numchild=atoi(r->v.cstr);
-                     }
-                  }
-                r=r->next;
+                cur->name=r->v.cstr;
+                r->v.cstr=NULL;
                }
-             i++;
-             s++;
+             else if (strcmp(r->var,"exp")==0)
+               {
+                cur->exp=r->v.cstr;
+                r->v.cstr=NULL;
+               }
+             else if (strcmp(r->var,"type")==0)
+               {
+                cur->type=r->v.cstr;
+                r->v.cstr=NULL;
+                l=strlen(cur->type);
+                if (l && cur->type[l-1]=='*')
+                   cur->ispointer=1;
+               }
+             else if (strcmp(r->var,"value")==0)
+               {
+                cur->value=r->v.cstr;
+                r->v.cstr=NULL;
+               }                     
+             else if (strcmp(r->var,"numchild")==0)
+               {
+                cur->numchild=atoi(r->v.cstr);
+               }
             }
-          ch=ch->next;
+          r=r->next;
          }
-       ok=(i==count);
+       i++;
       }
-    if (!ok)
-      {
-       mi_free_children(c);
-       c=NULL;
-      }
+    ch=ch->next;
    }
- return c;
+ v->vischild=i;
+ v->opened=1;
+ return i==v->numchild;
 }
 
-mi_gvar_children *mi_res_children(mi_h *h)
+int mi_res_children(mi_h *h, mi_gvar *v)
 {
  mi_output *r, *res;
- mi_gvar_children *c=NULL;
+ int ok=0;
 
  r=mi_get_response_blk(h);
  res=mi_get_rrecord(r);
@@ -1071,19 +1072,24 @@ mi_gvar_children *mi_res_children(mi_h *h)
     mi_results *num=mi_get_var(res,"numchild");
     if (num && num->type==t_const)
       {
-       int count=atoi(num->v.cstr);
-       if (!count)
-          c=mi_alloc_gvar_children();
-       else
+       v->numchild=atoi(num->v.cstr);
+       if (v->child)
+         {
+          mi_free_gvar(v->child);
+          v->child=NULL;
+         }
+       if (v->numchild)
          {
           mi_results *ch =mi_get_var(res,"children");
           if (ch && ch->type!=t_const) /* MI v1 tuple, MI v2 list */
-             c=mi_get_children(ch->v.rs,count);
+             ok=mi_get_children(ch->v.rs,v);
          }
+       else
+          ok=1;
       }
    }
  mi_free_output(r);
- return c;
+ return ok;
 }
 
 mi_bkpt *mi_get_bkpt(mi_results *p)

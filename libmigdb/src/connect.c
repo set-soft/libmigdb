@@ -329,6 +329,8 @@ mi_h *mi_connect_local()
 void mi_disconnect(mi_h *h)
 {
  mi_free_h(&h);
+ free(mi_error_from_gdb);
+ mi_error_from_gdb=NULL;
 }
 
 void mi_set_console_cb(mi_h *h, stream_cb cb, void *data)

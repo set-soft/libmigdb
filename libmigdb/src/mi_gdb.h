@@ -59,10 +59,10 @@ enum mi_val_type { t_const, t_tuple, t_list };
 #define MI_CL_ERROR        5
 #define MI_CL_EXIT         6
 
-#define MI_VERSION_STR "0.8.1"
+#define MI_VERSION_STR "0.8.2"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  1
+#define MI_VERSION_MINOR  2
 
 struct mi_results_struct
 {
@@ -193,11 +193,13 @@ struct mi_aux_term_struct
 };
 typedef struct mi_aux_term_struct mi_aux_term;
 
-enum mi_gvar_fmt { fm_natural=0, fm_binary, fm_decimal, fm_hexadecimal, fm_octal };
+enum mi_gvar_fmt { fm_natural=0, fm_binary=1, fm_decimal=2, fm_hexadecimal=3,
+                   fm_octal=4 };
 enum mi_gvar_lang { lg_unknown=0, lg_c, lg_cpp, lg_java };
 
-#define MI_ATTR_NONEDITABLE 0
-#define MI_ATTR_EDITABLE    1
+#define MI_ATTR_DONT_KNOW   0
+#define MI_ATTR_NONEDITABLE 1
+#define MI_ATTR_EDITABLE    2
 
 struct mi_gvar_struct
 {
@@ -206,8 +208,28 @@ struct mi_gvar_struct
  char *type;
  enum mi_gvar_fmt format;
  enum mi_gvar_lang lang;
- char *expression;
+ char *exp;
  int   attr;
+
+ /* MI v2 fills it, not yet implemented here. */
+ /* Use gmi_var_evaluate_expression. */
+ char *value;
+
+ /* Pointer to the parent. NULL if none. */
+ struct mi_gvar_struct *parent;
+ /* List containing the children.
+    Filled by gmi_var_list_children.
+    NULL if numchild==0 or not yet filled. */
+ struct mi_gvar_struct *child;
+ /* Next var in the list. */
+ struct mi_gvar_struct *next;
+
+ /* For the user: */
+ char opened;  /* We will show its children. 1 when we fill "child" */
+ char changed; /* Needs to be updated. 0 when created. */
+ int vischild; /* How many items visible. numchild when we fill "child" */
+ int depth;    /* How deep is this var. */
+ char ispointer;
 };
 typedef struct mi_gvar_struct mi_gvar;
 
@@ -221,23 +243,6 @@ struct mi_gvar_chg_struct
  struct mi_gvar_chg_struct *next;
 };
 typedef struct mi_gvar_chg_struct mi_gvar_chg;
-
-struct mi_gvar_child_struct
-{
- char *name;
- char *exp;
- char *type;  /* Optional. */
- int numchild;
- char *value; /* Only MI v2, not yet implemented here. */
-};
-typedef struct mi_gvar_child_struct mi_gvar_child;
-
-struct mi_gvar_children_struct
-{
- int numchild;
- mi_gvar_child *c;
-};
-typedef struct mi_gvar_children_struct mi_gvar_children;
 
 /*
  Examining gdb sources and looking at docs I can see the following "stop"
@@ -383,7 +388,7 @@ const char *mi_format_enum_to_str(enum mi_gvar_fmt format);
 enum mi_gvar_lang mi_lang_str_to_enum(const char *lang);
 const char *mi_lang_enum_to_str(enum mi_gvar_lang lang);
 int mi_res_changelist(mi_h *h, mi_gvar_chg **changed);
-mi_gvar_children *mi_res_children(mi_h *h);
+int mi_res_children(mi_h *h, mi_gvar *v);
 mi_bkpt *mi_res_bkpt(mi_h *h);
 mi_wp *mi_res_wp(mi_h *h);
 char *mi_res_value(mi_h *h);
@@ -400,8 +405,6 @@ mi_output        *mi_alloc_output();
 mi_frames        *mi_alloc_frames();
 mi_gvar          *mi_alloc_gvar();
 mi_gvar_chg      *mi_alloc_gvar_chg();
-mi_gvar_children *mi_alloc_gvar_children();
-mi_gvar_child    *mi_alloc_gvar_child(size_t count);
 mi_bkpt          *mi_alloc_bkpt();
 mi_wp            *mi_alloc_wp();
 mi_stop          *mi_alloc_stop();
@@ -413,7 +416,6 @@ void mi_free_results(mi_results *r);
 void mi_free_results_but(mi_results *r, mi_results *no);
 void mi_free_gvar(mi_gvar *v);
 void mi_free_gvar_chg(mi_gvar_chg *p);
-void mi_free_children(mi_gvar_children *c);
 void mi_free_wp(mi_wp *wp);
 void mi_free_stop(mi_stop *s);
 
@@ -546,12 +548,12 @@ int gmi_var_show_attributes(mi_h *h, mi_gvar *var);
 /* Update variable. Use NULL for all.
    Note that *changed can be NULL if none updated. */
 int gmi_var_update(mi_h *h, mi_gvar *var, mi_gvar_chg **changed);
-/* Change variable. Returns the new value. */
-mi_results *gmi_var_assign(mi_h *h, mi_gvar *var, const char *expression);
+/* Change variable. Fills the value field. */
+int gmi_var_assign(mi_h *h, mi_gvar *var, const char *expression);
 /* Get current value for a variable. */
-char *gmi_var_evaluate_expression(mi_h *h, mi_gvar *var);
+int gmi_var_evaluate_expression(mi_h *h, mi_gvar *var);
 /* List children. It ONLY returns the first level information. :-( */
-mi_gvar_children *gmi_var_list_children(mi_h *h, mi_gvar *var);
+int gmi_var_list_children(mi_h *h, mi_gvar *var);
 
 #ifdef __cplusplus
 };
@@ -631,12 +633,45 @@ public:
      return 0;
   return gmi_var_delete(h,var);
  }
+ int EvalgVar(mi_gvar *var)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_var_evaluate_expression(h,var);
+ }
+ int GetChildgVar(mi_gvar *var)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_var_list_children(h,var);
+ }
+ int FillTypeVal(mi_gvar *var);
+ int FillOneTypeVal(mi_gvar *var);
+ int FillAttr(mi_gvar *var)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_var_show_attributes(h,var);
+ }
+ int FillFormat(mi_gvar *var)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_var_show_format(h,var);
+ }
+ int SetFormatgVar(mi_gvar *var, enum mi_gvar_fmt format)
+ {
+  if (state!=stopped)
+     return 0;
+  return gmi_var_set_format(h,var,format);
+ }
  int ListChangedgVar(mi_gvar_chg *&changed)
  {
   if (state!=stopped)
      return 0;
   return gmi_var_update(h,NULL,&changed);
  }
+ int AssigngVar(mi_gvar *var, const char *exp);
  int Send(const char *command);
  int Version()
  {

@@ -58,16 +58,6 @@ mi_gvar_chg *mi_alloc_gvar_chg()
  return (mi_gvar_chg *)mi_calloc1(sizeof(mi_gvar_chg));
 }
 
-mi_gvar_children *mi_alloc_gvar_children()
-{
- return (mi_gvar_children *)mi_calloc1(sizeof(mi_gvar_children));
-}
-
-mi_gvar_child *mi_alloc_gvar_child(size_t count)
-{
- return (mi_gvar_child *)mi_calloc(count,sizeof(mi_gvar_child));
-}
-
 mi_bkpt *mi_alloc_bkpt()
 {
  mi_bkpt *b=(mi_bkpt *)mi_calloc1(sizeof(mi_bkpt));
@@ -124,35 +114,22 @@ void mi_free_bkpt(mi_bkpt *b)
    }
 }
 
-void mi_free_children(mi_gvar_children *c)
-{
- if (!c)
-    return;
- if (c->c)
-   {
-    mi_gvar_child *s=c->c;
-    int i, t=c->numchild;
-
-    for (i=0; i<t; s++, i++)
-       {
-        free(s->name);
-        free(s->exp);
-        free(s->type);
-        free(s->value);
-       }
-    free(c->c);
-   }
- free(c);
-}
-
 void mi_free_gvar(mi_gvar *v)
 {
- if (!v)
-    return;
- free(v->name);
- free(v->type);
- free(v->expression);
- free(v);
+ mi_gvar *aux;
+
+ while (v)
+   {
+    free(v->name);
+    free(v->type);
+    free(v->exp);
+    free(v->value);
+    if (v->numchild && v->child)
+       mi_free_gvar(v->child);
+    aux=v->next;
+    free(v);
+    v=aux;
+   }
 }
 
 void mi_free_gvar_chg(mi_gvar_chg *p)

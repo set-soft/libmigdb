@@ -1,4 +1,12 @@
-$Log$
+$Log$.
+Revision 1.7  2004/08/01 00:16:13  set
+* Added: More fields to the mi_wp structure, useful for the frontend.
+* Fixed: Watchpoint expressions must be enclosed using "" to avoid
+problems.
+* Fixed: wp_mode name to mi_wp_mode.
+* Added: int MIDebugger::WatchDelete(mi_wp *w).
+* Fixed: sr_wp_scope doesn't report a full wp, just the number.
+
 Revision 1.6  2004/07/30 21:17:08  set
 * Added: More workarounds to gdb bugs. I fille the cli/1725, gdb/1726 and
 gdb/1727 bug reports. I hope they get fixed :-(

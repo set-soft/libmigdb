@@ -480,7 +480,10 @@ int MIDebugger::Kill()
  int res=gmi_exec_kill(h);
  /* Revert confirm option if needed. */
  if (prev)
+   {
     gmi_gdb_set(h,"confirm",prev);
+    free(prev);
+   }
 
  if (res)
     state=target_specified;
@@ -896,3 +899,51 @@ int MIDebugger::Send(const char *command)
  return mi_res_simple_done(h);
 }
 
+
+/**[txh]********************************************************************
+
+  Description:
+  Fills the type and value fields of the mi_gvar provided list.
+  
+  Return: !=0 OK
+  
+***************************************************************************/
+
+int MIDebugger::FillTypeVal(mi_gvar *var)
+{
+ while (var)
+   {
+    if (!var->type && !gmi_var_info_type(h,var))
+       return 0;
+    if (!var->value && !gmi_var_evaluate_expression(h,var))
+       return 0;
+    var=var->next;
+   }
+ return 1;
+}
+
+int MIDebugger::FillOneTypeVal(mi_gvar *var)
+{
+ if (!var)
+    return 0;
+
+ int ok=1;
+ if (!var->type && !gmi_var_info_type(h,var))
+   {
+    var->type=strdup("");
+    ok=0;
+   }
+ if (!var->value && !gmi_var_evaluate_expression(h,var))
+   {
+    var->value=strdup("");
+    ok=0;
+   }
+ return ok;
+}
+
+int MIDebugger::AssigngVar(mi_gvar *var, const char *exp)
+{
+ if (state!=stopped)
+    return 0;
+ return gmi_var_assign(h,var,exp);
+}

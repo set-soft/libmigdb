@@ -54,32 +54,32 @@ void mi_var_delete(mi_h *h, const char *name)
 
 void mi_var_set_format(mi_h *h, const char *name, const char *format)
 {
- mi_send(h,"-var-set-format %s %s\n",name,format);
+ mi_send(h,"-var-set-format \"%s\" %s\n",name,format);
 }
 
 void mi_var_show_format(mi_h *h, const char *name)
 {
- mi_send(h,"-var-show-format %s\n",name);
+ mi_send(h,"-var-show-format \"%s\"\n",name);
 }
 
 void mi_var_info_num_children(mi_h *h, const char *name)
 {
- mi_send(h,"-var-info-num-children %s\n",name);
+ mi_send(h,"-var-info-num-children \"%s\"\n",name);
 }
 
 void mi_var_info_type(mi_h *h, const char *name)
 {
- mi_send(h,"-var-info-type %s\n",name);
+ mi_send(h,"-var-info-type \"%s\"\n",name);
 }
 
 void mi_var_info_expression(mi_h *h, const char *name)
 {
- mi_send(h,"-var-info-expression %s\n",name);
+ mi_send(h,"-var-info-expression \"%s\"\n",name);
 }
 
 void mi_var_show_attributes(mi_h *h, const char *name)
 {
- mi_send(h,"-var-show-attributes %s\n",name);
+ mi_send(h,"-var-show-attributes \"%s\"\n",name);
 }
 
 void mi_var_update(mi_h *h, const char *name)
@@ -92,17 +92,17 @@ void mi_var_update(mi_h *h, const char *name)
 
 void mi_var_assign(mi_h *h, const char *name, const char *expression)
 {
- mi_send(h,"-var-assign %s %s\n",name,expression);
+ mi_send(h,"-var-assign \"%s\" \"%s\"\n",name,expression);
 }
 
 void mi_var_evaluate_expression(mi_h *h, const char *name)
 {
- mi_send(h,"-var-evaluate-expression %s\n",name);
+ mi_send(h,"-var-evaluate-expression \"%s\"\n",name);
 }
 
 void mi_var_list_children(mi_h *h, const char *name)
 {
- mi_send(h,"-var-list-children %s\n",name);
+ mi_send(h,"-var-list-children \"%s\"\n",name);
 }
 
 /* High level versions. */
@@ -302,48 +302,65 @@ int gmi_var_update(mi_h *h, mi_gvar *var, mi_gvar_chg **changed)
 /**[txh]********************************************************************
 
   Description:
-  Change variable. Returns the new value.
+  Change variable. The new value replaces the @var{value} field.
 
   Command: -var-assign
-  Return: A new mi_results with the assigned value.
+  Return: !=0 OK
   
 ***************************************************************************/
 
-mi_results *gmi_var_assign(mi_h *h, mi_gvar *var, const char *expression)
+int gmi_var_assign(mi_h *h, mi_gvar *var, const char *expression)
 {
+ char *res;
  mi_var_assign(h,var->name,expression);
- return mi_res_done_var(h,"value");
+ res=mi_res_value(h);
+ if (res)
+   {
+    free(var->value);
+    var->value=res;
+    return 1;
+   }
+ return 0;
 }
 
 /**[txh]********************************************************************
 
   Description:
-  Get current value for a variable.
+  Fill the value field getting the current value for a variable.
 
   Command: -var-evaluate-expression
-  Return: The current value (plain text) or NULL on error.
+  Return: !=0 OK, value contains the result.
   
 ***************************************************************************/
 
-char *gmi_var_evaluate_expression(mi_h *h, mi_gvar *var)
+int gmi_var_evaluate_expression(mi_h *h, mi_gvar *var)
 {
+ char *s;
+
  mi_var_evaluate_expression(h,var->name);
- return mi_res_value(h);
+ s=mi_res_value(h);
+ if (s)
+   {
+    free(var->value);
+    var->value=s;
+   }
+ return s!=NULL;
 }
 
 /**[txh]********************************************************************
 
   Description:
-  List children. It ONLY returns the first level information. :-(
+  List children. It ONLY returns the first level information. :-(@*
+  On success the child field contains the list of children.
 
   Command: -var-list-children
-  Return: A new list of mi_gvar_children or NULL on error.
+  Return: !=0 OK
   
 ***************************************************************************/
 
-mi_gvar_children *gmi_var_list_children(mi_h *h, mi_gvar *var)
+int gmi_var_list_children(mi_h *h, mi_gvar *var)
 {
  mi_var_list_children(h,var->name);
- return mi_res_children(h);
+ return mi_res_children(h,var);
 }
 
