@@ -22,7 +22,9 @@ const char *error_strs[]=
  "Parser failed",
  "Unknown asyn response",
  "Unknown result response",
- "Error from gdb"
+ "Error from gdb",
+ "Time out in gdb response",
+ "GDB suddenly died"
 };
 
 const char *mi_get_error_str()

@@ -646,7 +646,7 @@ int MIDebugger::RunToMain()
 {
  if (state!=target_specified)
     return 0;
- mi_bkpt *b=Breakpoint("main",true);
+ mi_bkpt *b=Breakpoint(mi_get_main_func(),true);
  if (!b)
     return 0;
  mi_free_bkpt(b);
@@ -991,5 +991,16 @@ MIDebugger::endianType MIDebugger::GetTargetEndian()
     free(end);
    }
  return targetEndian;
+}
+
+int MIDebugger::GetErrorNumberSt()
+{
+ if (mi_error==MI_GDB_DIED)
+   {
+    state=target_specified;
+    TargetUnselect();
+    Disconnect();
+   }
+ return mi_error;
 }
 

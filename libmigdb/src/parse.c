@@ -533,9 +533,6 @@ int mi_res_simple(mi_h *h, int tclass, int accert_ret)
     ret=res->tclass==tclass;
  mi_free_output(r);
 
- if (accert_ret)
-    assert(ret);
-
  return ret;
 }
 

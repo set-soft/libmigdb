@@ -24,7 +24,9 @@ extern "C" {
 #define MI_UNKNOWN_ASYNC           6
 #define MI_UNKNOWN_RESULT          7
 #define MI_FROM_GDB                8
-#define MI_LAST_ERROR              8
+#define MI_GDB_TIME_OUT            9
+#define MI_GDB_DIED               10
+#define MI_LAST_ERROR             10
 
 #define MI_R_NONE                  0 /* We are no waiting any response. */
 #define MI_R_SKIP                  1 /* We want to discard it. */
@@ -59,10 +61,12 @@ enum mi_val_type { t_const, t_tuple, t_list };
 #define MI_CL_ERROR        5
 #define MI_CL_EXIT         6
 
-#define MI_VERSION_STR "0.8.3"
+#define MI_DEFAULT_TIME_OUT 10
+
+#define MI_VERSION_STR "0.8.4"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  3
+#define MI_VERSION_MINOR  4
 
 struct mi_results_struct
 {
@@ -93,6 +97,7 @@ typedef struct mi_output_struct mi_output;
 
 typedef void (*stream_cb)(const char *, void *);
 typedef void (*async_cb)(mi_output *o, void *);
+typedef int  (*tm_cb)(void *);
 
 /* Values of this structure shouldn't be manipulated by the user. */
 struct mi_h_struct
@@ -104,6 +109,7 @@ struct mi_h_struct
  FILE *to, *from;
  /* PID of child gdb. */
  pid_t pid;
+ char died;
  /* Which rensponse we are waiting for. */
  /*int response;*/
  /* The line we are reading. */
@@ -126,6 +132,10 @@ struct mi_h_struct
  void *to_gdb_echo_data;
  stream_cb from_gdb_echo;
  void *from_gdb_echo_data;
+ /* Time out */
+ tm_cb time_out_cb;
+ void *time_out_cb_data;
+ int time_out;
  /* Ugly workaround for some of the show responses :-( */
  int catch_console;
  char *catched_console;
@@ -323,7 +333,8 @@ extern char *mi_error_from_gdb;
 const char *mi_get_error_str();
 
 /* Indicate the name of gdb exe. Default is /usr/bin/gdb */
-void mi_set_gdb_exe(char *name);
+void mi_set_gdb_exe(const char *name);
+const char *mi_get_gdb_exe();
 /* Connect to a local copy of gdb. */
 mi_h *mi_connect_local();
 /* Close connection. You should ask gdb to quit first. */
@@ -340,6 +351,11 @@ stream_cb mi_get_log_cb(mi_h *h, void **data);
 /* The callback to deal with async events. */
 void mi_set_async_cb(mi_h *h, async_cb cb, void *data);
 async_cb mi_get_async_cb(mi_h *h, void **data);
+/* Time out in gdb responses. */
+void mi_set_time_out_cb(mi_h *h, tm_cb cb, void *data);
+tm_cb mi_get_time_out_cb(mi_h *h, void **data);
+void mi_set_time_out(mi_h *h, int to);
+int mi_get_time_out(mi_h *h);
 /* Callbacks to "see" the dialog with gdb. */
 void mi_set_to_gdb_cb(mi_h *h, stream_cb cb, void *data);
 void mi_set_from_gdb_cb(mi_h *h, stream_cb cb, void *data);
@@ -376,7 +392,8 @@ mi_frames *mi_res_frame(mi_h *h);
 /* Create an auxiliar terminal using xterm. */
 mi_aux_term *gmi_start_xterm();
 /* Indicate the name of xterm exe. Default is /usr/bin/X11/xterm */
-void mi_set_xterm_exe(char *name);
+void mi_set_xterm_exe(const char *name);
+const char *mi_get_xterm_exe();
 /* Kill the auxiliar terminal and release the structure. */
 void gmi_end_aux_term(mi_aux_term *t);
 /* Look for a free Linux VT for the child. */
@@ -402,6 +419,10 @@ enum mi_stop_reason mi_reason_str_to_enum(const char *s);
 const char *mi_reason_enum_to_str(enum mi_stop_reason r);
 int mi_get_read_memory(mi_h *h, unsigned char *dest, unsigned ws, int *na,
                        unsigned long *addr);
+/* Starting point of the program. */
+void mi_set_main_func(const char *name);
+const char *mi_get_main_func();
+                       
 
 /* Allocation functions: */
 void *mi_calloc(size_t count, size_t sz);
@@ -730,11 +751,17 @@ public:
  eState GetState() { return state; }
 
  /* Some wrappers */
- static void SetGDBExe(char *name) { mi_set_gdb_exe(name); }
- static void SetXTerm(char *name) { mi_set_xterm_exe(name); }
+ static void SetGDBExe(const char *name) { mi_set_gdb_exe(name); }
+ static const char *GetGDBExe() { return mi_get_gdb_exe(); }
+ static void SetXTermExe(const char *name) { mi_set_xterm_exe(name); }
+ static const char *GetXTermExe() { return mi_get_xterm_exe(); }
+ static void SetMainFunc(const char *name) { mi_set_main_func(name); }
+ static const char *GetMainFunc() { return mi_get_main_func(); }
+
  static const char *GetErrorStr() { return mi_get_error_str(); }
  static const char *GetGDBError() { return mi_error_from_gdb; }
  static int GetErrorNumber() { return mi_error; }
+ int GetErrorNumberSt();
  void SetConsoleCB(stream_cb cb, void *data=NULL)
    { mi_set_console_cb(h,cb,data); }
  void SetTargetCB(stream_cb cb, void *data=NULL)
@@ -747,6 +774,10 @@ public:
    { mi_set_to_gdb_cb(h,cb,data); }
  void SetFromGDBCB(stream_cb cb, void *data=NULL)
    { mi_set_from_gdb_cb(h,cb,data); }
+ void SetTimeOutCB(tm_cb cb, void *data)
+   { mi_set_time_out_cb(h,cb,data); }
+ void SetTimeOut(int to)
+   { mi_set_time_out(h,to); }
 
  const char *GetAuxTTY()
    { return aux_tty ? aux_tty->tty : NULL; }

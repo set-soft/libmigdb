@@ -27,12 +27,14 @@ in a row.
 #include <string.h>
 #include <stdarg.h>
 #include <limits.h>
+#include <errno.h>
 #include "mi_gdb.h"
 
 int mi_error=MI_OK;
 char *mi_error_from_gdb=NULL;
-static char *gdb_exe="/usr/bin/gdb";
-static char *xterm_exe="/usr/bin/X11/xterm";
+static char *gdb_exe=NULL;
+static char *xterm_exe=NULL;
+static char *main_func=NULL;
 
 mi_h *mi_alloc_h()
 {
@@ -65,7 +67,7 @@ int mi_check_running_pid(pid_t pid)
 
 int mi_check_running(mi_h *h)
 {
- return mi_check_running_pid(h->pid);
+ return !h->died && mi_check_running_pid(h->pid);
 }
 
 void mi_kill_child(pid_t pid)
@@ -247,6 +249,13 @@ mi_output *mi_retire_response(mi_h *h)
 mi_output *mi_get_response_blk(mi_h *h)
 {
  int r;
+ /* Sometimes gdb dies. */
+ if (!mi_check_running(h))
+   {
+    h->died=1;
+    mi_error=MI_GDB_DIED;
+    return NULL;
+   }
  do
    {
     if (1)
@@ -260,6 +269,7 @@ mi_output *mi_get_response_blk(mi_h *h)
        */
        fd_set set;
        struct timeval timeout;
+       int ret;
 
        r=mi_get_response(h);
        if (r)
@@ -267,9 +277,25 @@ mi_output *mi_get_response_blk(mi_h *h)
 
        FD_ZERO(&set);
        FD_SET(h->from_gdb[0],&set);
-       timeout.tv_sec=10;
+       timeout.tv_sec=h->time_out;
        timeout.tv_usec=0;
-       select(FD_SETSIZE,&set,NULL,NULL,&timeout);
+       ret=TEMP_FAILURE_RETRY(select(FD_SETSIZE,&set,NULL,NULL,&timeout));
+       if (!ret)
+         {
+          if (!mi_check_running(h))
+            {
+             h->died=1;
+             mi_error=MI_GDB_DIED;
+             return NULL;
+            }
+          if (h->time_out_cb)
+             ret=h->time_out_cb(h->time_out_cb_data);
+          if (!ret)
+            {
+             mi_error=MI_GDB_TIME_OUT;
+             return NULL;
+            }
+         }
       }
     else
       {
@@ -301,6 +327,7 @@ mi_h *mi_connect_local()
  mi_h *h=mi_alloc_h();
  if (!h)
     return h;
+ h->time_out=MI_DEFAULT_TIME_OUT;
  /* Create the pipes to connect with the child. */
  if (pipe(h->to_gdb) || pipe(h->from_gdb))
    {
@@ -328,7 +355,7 @@ mi_h *mi_connect_local()
     dup2(h->to_gdb[0],STDIN_FILENO);
     dup2(h->from_gdb[1],STDOUT_FILENO);
     /* Pass the control to gdb. */
-    argv[0]=gdb_exe;
+    argv[0]=(char *)mi_get_gdb_exe(); /* Is that OK? */
     argv[1]="--interpreter=mi";
     argv[2]="--quiet";
     argv[3]="--readnow";
@@ -448,11 +475,37 @@ stream_cb mi_get_from_gdb_cb(mi_h *h, void **data)
  return h->from_gdb_echo;
 }
 
+void mi_set_time_out_cb(mi_h *h, tm_cb cb, void *data)
+{
+ h->time_out_cb=cb;
+ h->time_out_cb_data=data;
+}
+
+tm_cb mi_get_time_out_cb(mi_h *h, void **data)
+{
+ if (data)
+    *data=h->time_out_cb_data;
+ return h->time_out_cb;
+}
+
+void mi_set_time_out(mi_h *h, int to)
+{
+ h->time_out=to;
+}
+
+int mi_get_time_out(mi_h *h)
+{
+ return h->time_out;
+}
+
 int mi_send(mi_h *h, const char *format, ...)
 {
  int ret;
  char *str;
  va_list argptr;
+
+ if (h->died)
+    return 0;
 
  va_start(argptr,format);
  ret=vasprintf(&str,format,argptr);
@@ -466,9 +519,102 @@ int mi_send(mi_h *h, const char *format, ...)
  return ret;
 }
 
-void mi_set_gdb_exe(char *name)
+void mi_clean_up_globals()
 {
- gdb_exe=name;
+ free(gdb_exe);
+ gdb_exe=NULL;
+ free(xterm_exe);
+ xterm_exe=NULL;
+ free(main_func);
+ main_func=NULL;
+}
+
+void mi_register_exit()
+{
+ static int registered=0;
+ if (!registered)
+   {
+    registered=1;
+    atexit(mi_clean_up_globals);
+   }
+}
+
+void mi_set_gdb_exe(const char *name)
+{
+ free(gdb_exe);
+ gdb_exe=name ? strdup(name) : NULL;
+ mi_register_exit();
+}
+
+static
+char *mi_search_in_path(const char *file)
+{
+ char *path, *pt, *r;
+ char test[PATH_MAX];
+ struct stat st;
+
+ path=getenv("PATH");
+ if (!path)
+    return NULL;
+ pt=strdup(path);
+ r=strtok(pt,":");
+ while (r)
+   {
+    strcpy(test,r);
+    strcat(test,"/");
+    strcat(test,file);
+    if (stat(test,&st)==0 && S_ISREG(st.st_mode))
+      {
+       free(pt);
+       return strdup(test);
+      }
+    r=strtok(NULL,":");
+   }
+ free(pt);
+ return NULL;
+}
+
+const char *mi_get_gdb_exe()
+{
+ if (!gdb_exe)
+   {/* Look for gdb in path */
+    gdb_exe=mi_search_in_path("gdb");
+    if (!gdb_exe)
+       return "/usr/bin/gdb";
+   }
+ return gdb_exe;
+}
+
+void mi_set_xterm_exe(const char *name)
+{
+ free(xterm_exe);
+ xterm_exe=name ? strdup(name) : NULL;
+ mi_register_exit();
+}
+
+const char *mi_get_xterm_exe()
+{
+ if (!xterm_exe)
+   {/* Look for gdb in path */
+    xterm_exe=mi_search_in_path("xterm");
+    if (!xterm_exe)
+       return "/usr/bin/X11/xterm";
+   }
+ return xterm_exe;
+}
+
+void mi_set_main_func(const char *name)
+{
+ free(main_func);
+ main_func=name ? strdup(name) : NULL;
+ mi_register_exit();
+}
+
+const char *mi_get_main_func()
+{
+ if (main_func)
+    return main_func;
+ return "main";
 }
 
 /**[txh]********************************************************************
@@ -523,7 +669,7 @@ mi_aux_term *gmi_start_xterm()
    {/* We are the child. */
     char *argv[5];
     /* Pass the control to gdb. */
-    argv[0]=xterm_exe;
+    argv[0]=(char *)mi_get_xterm_exe(); /* Is that ok? */
     argv[1]="-e";
     argv[2]="/bin/sh";
     argv[3]=nsh;
@@ -590,7 +736,3 @@ void gmi_end_aux_term(mi_aux_term *t)
  mi_free_aux_term(t);
 }
 
-void mi_set_xterm_exe(char *name)
-{
- xterm_exe=name;
-}
