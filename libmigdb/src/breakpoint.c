@@ -46,13 +46,24 @@ void mi_break_insert(mi_h *h, int temporary, int hard_assist,
     snprintf(s_count,32,"%d",count);
  if (thread>=0)
     snprintf(s_thread,32,"%d",thread);
- mi_send(h,"-break-insert %s %s %s %s %s %s %s %s %s\n",
-         temporary   ? "-t" : "",
-         hard_assist ? "-h" : "",
-         cond        ? "-c" : "", cond      ? cond     : "",
-         count>=0    ? "-i" : "", count>=0  ? s_count  : "",
-         thread>=0   ? "-p" : "", thread>=0 ? s_thread : "",
-         where);
+ if (cond)
+    // Conditions may contain spaces, in fact, if they don't gdb will add
+    // them after parsing. Enclosing the expression with "" solves the
+    // problem.
+    mi_send(h,"-break-insert %s %s -c \"%s\" %s %s %s %s %s\n",
+            temporary   ? "-t" : "",
+            hard_assist ? "-h" : "",
+            cond,
+            count>=0    ? "-i" : "", count>=0  ? s_count  : "",
+            thread>=0   ? "-p" : "", thread>=0 ? s_thread : "",
+            where);
+ else
+    mi_send(h,"-break-insert %s %s %s %s %s %s %s\n",
+            temporary   ? "-t" : "",
+            hard_assist ? "-h" : "",
+            count>=0    ? "-i" : "", count>=0  ? s_count  : "",
+            thread>=0   ? "-p" : "", thread>=0 ? s_thread : "",
+            where);
 }
 
 void mi_break_insert_flf(mi_h *h, const char *file, int line, int temporary,
@@ -185,7 +196,7 @@ int gmi_break_delete(mi_h *h, int number)
 /**[txh]********************************************************************
 
   Description:
-  Modify the "times" count for a breakpoint.
+  Modify the "ignore" count for a breakpoint.
 
   Command: -break-after
   Return: !=0 OK. Note that gdb always says OK, but errors can be sent to the

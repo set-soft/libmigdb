@@ -10,6 +10,7 @@
 ***************************************************************************/
 
 #include <string.h>
+#include <limits.h>
 #include "mi_gdb.h"
 
 /**[txh]********************************************************************
@@ -516,6 +517,35 @@ mi_bkpt *MIDebugger::Breakpoint(const char *where, bool temporary,
  if (state!=stopped && state!=target_specified)
     return NULL;
  return gmi_break_insert_full(h,temporary,hard_assist,cond,count,thread,where);
+}
+
+
+const int maxWhere=PATH_MAX+256;
+
+mi_bkpt *MIDebugger::Breakpoint(mi_bkpt *b)
+{
+ if (state!=stopped && state!=target_specified)
+    return NULL;
+
+ char buf[maxWhere];
+ buf[0]=0;
+ switch (b->mode)
+   {
+    case m_file_line:
+         snprintf(buf,maxWhere,"%s:%d",b->file,b->line);
+         break;
+    case m_function:
+         snprintf(buf,maxWhere,"%s",b->func);
+         break;
+    case m_file_function:
+         snprintf(buf,maxWhere,"%s:%s",b->file,b->func);
+         break;
+    case m_address:
+         snprintf(buf,maxWhere,"*%p",b->addr);
+         break;
+   }
+ return Breakpoint(buf,b->disp==d_del,b->cond,b->ignore,b->thread,
+                   b->type==t_hw);
 }
 
 /**[txh]********************************************************************

@@ -131,7 +131,7 @@ typedef struct mi_h_struct mi_h;
 
 #define MI_TO(a) ((a)->to_gdb[1])
 
-enum mi_bkp_type { t_unknown=0, t_breakpoint=1 };
+enum mi_bkp_type { t_unknown=0, t_breakpoint=1, t_hw=2 };
 enum mi_bkp_disp { d_unknown=0, d_keep=1, d_del=2 };
 enum mi_bkp_mode { m_file_line=0, m_function=1, m_file_function=2, m_address=3 };
 
@@ -145,6 +145,7 @@ struct mi_bkpt_struct
  char *func;
  char *file;
  int line;
+ int ignore;
  int times;
 
  /* For the user: */
@@ -472,7 +473,7 @@ mi_bkpt *gmi_break_insert_full_fl(mi_h *h, const char *file, int line,
 int gmi_break_delete(mi_h *h, int number);
 /* Free the memory used for a breakpoint description. */
 void mi_free_bkpt(mi_bkpt *b);
-/* Modify the "times" count for a breakpoint. */
+/* Modify the "ignore" count for a breakpoint. */
 int gmi_break_set_times(mi_h *h, int number, int count);
 /* Associate a condition with the breakpoint. */
 int gmi_break_set_condition(mi_h *h, int number, const char *condition);
@@ -598,6 +599,7 @@ public:
  mi_bkpt *BreakpointFull(const char *file, int line, bool temporary=false,
                          const char *cond=NULL, int count=-1, int thread=-1,
                          bool hard_assist=false);
+ mi_bkpt *Breakpoint(mi_bkpt *b);
  int BreakDelete(mi_bkpt *b);
  mi_wp *Watchpoint(enum wp_mode mode, const char *exp);
  int RunToMain();

@@ -1132,6 +1132,13 @@ mi_bkpt *mi_get_bkpt(mi_results *p)
           res->line=atoi(p->v.cstr);
        else if (strcmp(p->var,"times")==0)
           res->times=atoi(p->v.cstr);
+       else if (strcmp(p->var,"ignore")==0)
+          res->ignore=atoi(p->v.cstr);
+       else if (strcmp(p->var,"cond")==0)
+         {
+          res->cond=p->v.cstr;
+          p->v.cstr=NULL;
+         }
       }
     p=p->next;
    }

@@ -74,7 +74,7 @@ mi_bkpt *mi_alloc_bkpt()
  if (b)
    {
     b->thread=-1;
-    b->times=-1;
+    b->ignore=-1;
    }
  return b;
 }
