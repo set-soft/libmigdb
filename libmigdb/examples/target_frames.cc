@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 int v=2; struct { char *a; int q; } sup;
 

@@ -34,6 +34,28 @@ gdb command:                   Implemented?
 
 (*)  gmi_exec_kill implements it, but you should ensure that
 gmi_gdb_set("confirm","off") was called.@p
+
+GDB Bug workaround for -file-exec-and-symbols and -file-symbol-file: This
+is complex, but a real bug. When you set a breakpoint you never know the
+name of the file as it appears in the debug info. So you can be specifying
+an absolute file name or a relative file name. The reference point could be
+different than the one used in the debug info. To solve all the combinations
+gdb does a search trying various combinations. GDB isn't very smart so you
+must at least specify the working directory and the directory where the
+binary is located to get a good chance (+ user options to solve the rest).
+Once you did it gdb can find the file by doing transformations to the
+"canonical" filename. This search works OK for already loaded symtabs
+(symbol tables), but it have a bug when the search is done for psymtabs
+(partial symtabs). The bug is in the use of source_full_path_of (source.c).
+This function calls openp indicating try_cwd_first. It makes the search file
+if the psymtab file name have at least one dirseparator. It means that
+psymtabs for files compiled with relative paths will fail. The search for
+symtabs uses symtab_to_filename, it calls open_source_file which finally
+calls openp without try_cwd_first.@*
+To workaround this bug we must ensure gdb loads *all* the symtabs to memory.
+And here comes another problem -file-exec-and-symbols doesn't support it
+according to docs. In real life that's a wrapper for "file", but as nobody
+can say it won't change we must use the CLI command.
   
 ***************************************************************************/
 
@@ -44,7 +66,9 @@ gmi_gdb_set("confirm","off") was called.@p
 
 void mi_file_exec_and_symbols(mi_h *h, const char *file)
 {
- mi_send(h,"-file-exec-and-symbols %s\n",file);
+ //mi_send(h,"-file-exec-and-symbols %s\n",file);
+ // GDB BUG workaround.
+ mi_send(h,"file %s -readnow\n",file);
 }
 
 void mi_exec_arguments(mi_h *h, const char *args)
@@ -69,7 +93,9 @@ void mi_target_terminal(mi_h *h, const char *tty_name)
 
 void mi_file_symbol_file(mi_h *h, const char *file)
 {
- mi_send(h,"-file-symbol-file %s\n",file);
+ //mi_send(h,"-file-symbol-file %s\n",file);
+ // GDB BUG workaround.
+ mi_send(h,"symbol-file %s -readnow\n",file);
 }
 
 void mi_exec_finish(mi_h *h)

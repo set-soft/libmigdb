@@ -9,7 +9,7 @@ This document describes the functions of libmigdb library
 
 <p>
 
-This document applies to version 0.8.0 of the GDB/Machine interface
+This document applies to version 0.8.1 of the GDB/Machine interface
 library.
 
 <p>
@@ -122,6 +122,7 @@ function. And the examples show how to them together.
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
 <li><a href="#mi_connect_local">mi_connect_local</a>
 <li><a href="#mi_disconnect">mi_disconnect</a>
+<li><a href="#mi_get_error_str">mi_get_error_str</a>
 <li><a href="#mi_look_for_free_vt">mi_look_for_free_vt</a>
 <li><a href="#MIDebugger (MIDebugger)">MIDebugger (MIDebugger)</a>
 <li><a href="#ModifyExpression (MIDebugger)">ModifyExpression (MIDebugger)</a>
@@ -131,6 +132,7 @@ function. And the examples show how to them together.
 <li><a href="#RunOrContinue (MIDebugger)">RunOrContinue (MIDebugger)</a>
 <li><a href="#RunToMain (MIDebugger)">RunToMain (MIDebugger)</a>
 <li><a href="#SelectTargetLinux (MIDebugger)">SelectTargetLinux (MIDebugger)</a>
+<li><a href="#SelectTargetPID (MIDebugger)">SelectTargetPID (MIDebugger)</a>
 <li><a href="#SelectTargetRemote (MIDebugger)">SelectTargetRemote (MIDebugger)</a>
 <li><a href="#SelectTargetTTY (MIDebugger)">SelectTargetTTY (MIDebugger)</a>
 <li><a href="#SelectTargetX11 (MIDebugger)">SelectTargetX11 (MIDebugger)</a>
@@ -181,6 +183,7 @@ function. And the examples show how to them together.
 <li><a href="#RunOrContinue (MIDebugger)">RunOrContinue (MIDebugger)</a>
 <li><a href="#RunToMain (MIDebugger)">RunToMain (MIDebugger)</a>
 <li><a href="#SelectTargetLinux (MIDebugger)">SelectTargetLinux (MIDebugger)</a>
+<li><a href="#SelectTargetPID (MIDebugger)">SelectTargetPID (MIDebugger)</a>
 <li><a href="#SelectTargetRemote (MIDebugger)">SelectTargetRemote (MIDebugger)</a>
 <li><a href="#SelectTargetTTY (MIDebugger)">SelectTargetTTY (MIDebugger)</a>
 <li><a href="#SelectTargetX11 (MIDebugger)">SelectTargetX11 (MIDebugger)</a>
@@ -205,6 +208,11 @@ function. And the examples show how to them together.
 <li><a href="#C++ Interface.">C++ Interface.</a>
 <li><a href="#Connect.">Connect.</a>
 <li><a href="#Data manipulation.">Data manipulation.</a>
+<li><a href="#Error.
+  Comment:
+  Translates error numbers into messages.">Error.
+  Comment:
+  Translates error numbers into messages.</a>
 <li><a href="#Linux VT.">Linux VT.</a>
 <li><a href="#Miscellaneous commands.">Miscellaneous commands.</a>
 <li><a href="#Parser.">Parser.</a>
@@ -300,6 +308,7 @@ Implements a very simple (naive ;-) C++ wrapper.
 <li><a href="#RunOrContinue (MIDebugger)">RunOrContinue (MIDebugger)</a>
 <li><a href="#RunToMain (MIDebugger)">RunToMain (MIDebugger)</a>
 <li><a href="#SelectTargetLinux (MIDebugger)">SelectTargetLinux (MIDebugger)</a>
+<li><a href="#SelectTargetPID (MIDebugger)">SelectTargetPID (MIDebugger)</a>
 <li><a href="#SelectTargetRemote (MIDebugger)">SelectTargetRemote (MIDebugger)</a>
 <li><a href="#SelectTargetTTY (MIDebugger)">SelectTargetTTY (MIDebugger)</a>
 <li><a href="#SelectTargetX11 (MIDebugger)">SelectTargetX11 (MIDebugger)</a>
@@ -372,6 +381,22 @@ use -data-evaluate-expression to emulate it.
 <Menu>
 <li><a href="#gmi_data_evaluate_expression">gmi_data_evaluate_expression</a>
 <li><a href="#gmi_dir">gmi_dir</a>
+</Menu>
+
+
+
+<p><hr></p>
+<a name="Error.
+  Comment:
+  Translates error numbers into messages."></a>
+<H1>Error.
+  Comment:
+  Translates error numbers into messages.</H1>
+
+
+
+<Menu>
+<li><a href="#mi_get_error_str">mi_get_error_str</a>
 </Menu>
 
 
@@ -471,6 +496,28 @@ gdb command:                   Implemented?
 gmi_gdb_set("confirm","off") was called.
 <p>
 
+
+GDB Bug workaround for -file-exec-and-symbols and -file-symbol-file: This
+is complex, but a real bug. When you set a breakpoint you never know the
+name of the file as it appears in the debug info. So you can be specifying
+an absolute file name or a relative file name. The reference point could be
+different than the one used in the debug info. To solve all the combinations
+gdb does a search trying various combinations. GDB isn't very smart so you
+must at least specify the working directory and the directory where the
+binary is located to get a good chance (+ user options to solve the rest).
+Once you did it gdb can find the file by doing transformations to the
+"canonical" filename. This search works OK for already loaded symtabs
+(symbol tables), but it have a bug when the search is done for psymtabs
+(partial symtabs). The bug is in the use of source_full_path_of (source.c).
+This function calls openp indicating try_cwd_first. It makes the search file
+if the psymtab file name have at least one dirseparator. It means that
+psymtabs for files compiled with relative paths will fail. The search for
+symtabs uses symtab_to_filename, it calls open_source_file which finally
+calls openp without try_cwd_first.<br>
+To workaround this bug we must ensure gdb loads *all* the symtabs to memory.
+And here comes another problem -file-exec-and-symbols doesn't support it
+according to docs. In real life that's a wrapper for "file", but as nobody
+can say it won't change we must use the CLI command.
 
 <Menu>
 <li><a href="#gmi_exec_continue">gmi_exec_continue</a>
@@ -681,6 +728,7 @@ It isn't implemented.<br>
 <li><a href="#connect.c">connect.c</a>
 <li><a href="#cpp_int.cc">cpp_int.cc</a>
 <li><a href="#data_man.c">data_man.c</a>
+<li><a href="#error.c">error.c</a>
 <li><a href="#get_free_vt.c">get_free_vt.c</a>
 <li><a href="#misc.c">misc.c</a>
 <li><a href="#prg_control.c">prg_control.c</a>
@@ -752,6 +800,7 @@ It isn't implemented.<br>
 <li><a href="#RunOrContinue (MIDebugger)">RunOrContinue (MIDebugger)</a>
 <li><a href="#RunToMain (MIDebugger)">RunToMain (MIDebugger)</a>
 <li><a href="#SelectTargetLinux (MIDebugger)">SelectTargetLinux (MIDebugger)</a>
+<li><a href="#SelectTargetPID (MIDebugger)">SelectTargetPID (MIDebugger)</a>
 <li><a href="#SelectTargetRemote (MIDebugger)">SelectTargetRemote (MIDebugger)</a>
 <li><a href="#SelectTargetTTY (MIDebugger)">SelectTargetTTY (MIDebugger)</a>
 <li><a href="#SelectTargetX11 (MIDebugger)">SelectTargetX11 (MIDebugger)</a>
@@ -775,6 +824,18 @@ It isn't implemented.<br>
 <Menu>
 <li><a href="#gmi_data_evaluate_expression">gmi_data_evaluate_expression</a>
 <li><a href="#gmi_dir">gmi_dir</a>
+</Menu>
+
+
+
+<p><hr></p>
+<a name="error.c"></a>
+<H1>error.c</H1>
+
+
+
+<Menu>
+<li><a href="#mi_get_error_str">mi_get_error_str</a>
 </Menu>
 
 
@@ -2236,8 +2297,40 @@ o-&gt;SelectTargetRemote("./exec_file","192.168.1.65:5000");
 
 
 <p><hr></p>
+<a name="SelectTargetPID (MIDebugger)"></a>
+<center><Font Size=+2>SelectTargetPID</Font> (cpp_int.cc 245)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ MIDebugger::SelectTargetPID(const char *exec, int pid);
+</pre>
+
+
+<Font Size=+1><u>Member of the class:</u></Font>
+MIDebugger
+<p>
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Starts a local session using an already running process.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+!=0 OK.
+<p>
+
+
+
+<p><hr></p>
 <a name="TargetUnselect (MIDebugger)"></a>
-<center><Font Size=+2>TargetUnselect</Font> (cpp_int.cc 243)</center>
+<center><Font Size=+2>TargetUnselect</Font> (cpp_int.cc 275)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2271,7 +2364,7 @@ terminal. For remote debugging it uses "detach". Can be called when in
 
 <p><hr></p>
 <a name="Run (MIDebugger)"></a>
-<center><Font Size=+2>Run</Font> (cpp_int.cc 278)</center>
+<center><Font Size=+2>Run</Font> (cpp_int.cc 311)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2307,7 +2400,7 @@ information is known using Poll. You can stop the program using <a href="#Stop (
 
 <p><hr></p>
 <a name="Stop (MIDebugger)"></a>
-<center><Font Size=+2>Stop</Font> (cpp_int.cc 308)</center>
+<center><Font Size=+2>Stop</Font> (cpp_int.cc 341)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2348,7 +2441,7 @@ execution.
 
 <p><hr></p>
 <a name="Poll (MIDebugger)"></a>
-<center><Font Size=+2>Poll</Font> (cpp_int.cc 329)</center>
+<center><Font Size=+2>Poll</Font> (cpp_int.cc 362)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2385,7 +2478,7 @@ mi_stop structure if we got it or will be NULL if we didn't.
 
 <p><hr></p>
 <a name="Continue (MIDebugger)"></a>
-<center><Font Size=+2>Continue</Font> (cpp_int.cc 363)</center>
+<center><Font Size=+2>Continue</Font> (cpp_int.cc 408)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2418,7 +2511,7 @@ is stopped. On success will change to "running" state.
 
 <p><hr></p>
 <a name="RunOrContinue (MIDebugger)"></a>
-<center><Font Size=+2>RunOrContinue</Font> (cpp_int.cc 385)</center>
+<center><Font Size=+2>RunOrContinue</Font> (cpp_int.cc 430)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2453,7 +2546,7 @@ state is "target_specified" or "stopped". On success will change to
 
 <p><hr></p>
 <a name="Kill (MIDebugger)"></a>
-<center><Font Size=+2>Kill</Font> (cpp_int.cc 404)</center>
+<center><Font Size=+2>Kill</Font> (cpp_int.cc 449)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2488,7 +2581,7 @@ if you want to just stop the program call <a href="#Stop (MIDebugger)">Stop</a>.
 
 <p><hr></p>
 <a name="Breakpoint (MIDebugger)"></a>
-<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 448)</center>
+<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 493)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2521,7 +2614,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="Breakpoint (MIDebugger) <1>"></a>
-<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 465)</center>
+<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 510)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2554,7 +2647,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="BreakpointFull (MIDebugger)"></a>
-<center><Font Size=+2>BreakpointFull</Font> (cpp_int.cc 484)</center>
+<center><Font Size=+2>BreakpointFull</Font> (cpp_int.cc 529)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2587,7 +2680,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="BreakDelete (MIDebugger)"></a>
-<center><Font Size=+2>BreakDelete</Font> (cpp_int.cc 504)</center>
+<center><Font Size=+2>BreakDelete</Font> (cpp_int.cc 549)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2620,7 +2713,7 @@ called when the state is "stopped" or "target_specified".
 
 <p><hr></p>
 <a name="Watchpoint (MIDebugger)"></a>
-<center><Font Size=+2>Watchpoint</Font> (cpp_int.cc 521)</center>
+<center><Font Size=+2>Watchpoint</Font> (cpp_int.cc 566)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2653,7 +2746,7 @@ An mi_wp structure or NULL if error.
 
 <p><hr></p>
 <a name="RunToMain (MIDebugger)"></a>
-<center><Font Size=+2>RunToMain</Font> (cpp_int.cc 539)</center>
+<center><Font Size=+2>RunToMain</Font> (cpp_int.cc 584)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2687,7 +2780,7 @@ change to "running".
 
 <p><hr></p>
 <a name="StepOver (MIDebugger)"></a>
-<center><Font Size=+2>StepOver</Font> (cpp_int.cc 563)</center>
+<center><Font Size=+2>StepOver</Font> (cpp_int.cc 608)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2722,7 +2815,7 @@ next command. If successfully the state will change to "running".
 
 <p><hr></p>
 <a name="GoTo (MIDebugger)"></a>
-<center><Font Size=+2>GoTo</Font> (cpp_int.cc 595)</center>
+<center><Font Size=+2>GoTo</Font> (cpp_int.cc 640)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2756,7 +2849,7 @@ Fails for any other state.
 
 <p><hr></p>
 <a name="FinishFun (MIDebugger)"></a>
-<center><Font Size=+2>FinishFun</Font> (cpp_int.cc 632)</center>
+<center><Font Size=+2>FinishFun</Font> (cpp_int.cc 677)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2789,7 +2882,7 @@ usable when we are in the "stopped" state.
 
 <p><hr></p>
 <a name="ReturnNow (MIDebugger)"></a>
-<center><Font Size=+2>ReturnNow</Font> (cpp_int.cc 649)</center>
+<center><Font Size=+2>ReturnNow</Font> (cpp_int.cc 694)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2822,7 +2915,7 @@ synchronous function.
 
 <p><hr></p>
 <a name="CallStack (MIDebugger)"></a>
-<center><Font Size=+2>CallStack</Font> (cpp_int.cc 665)</center>
+<center><Font Size=+2>CallStack</Font> (cpp_int.cc 710)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2854,7 +2947,7 @@ MIDebugger
 
 <p><hr></p>
 <a name="TraceInto (MIDebugger)"></a>
-<center><Font Size=+2>TraceInto</Font> (cpp_int.cc 701)</center>
+<center><Font Size=+2>TraceInto</Font> (cpp_int.cc 746)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2889,7 +2982,7 @@ next command. If successfully the state will change to "running".
 
 <p><hr></p>
 <a name="EvalExpression (MIDebugger)"></a>
-<center><Font Size=+2>EvalExpression</Font> (cpp_int.cc 733)</center>
+<center><Font Size=+2>EvalExpression</Font> (cpp_int.cc 778)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2923,7 +3016,7 @@ The result of the expression (use free) or NULL.
 
 <p><hr></p>
 <a name="ModifyExpression (MIDebugger)"></a>
-<center><Font Size=+2>ModifyExpression</Font> (cpp_int.cc 758)</center>
+<center><Font Size=+2>ModifyExpression</Font> (cpp_int.cc 803)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2957,7 +3050,7 @@ The result of the expression (use free) or NULL.
 
 <p><hr></p>
 <a name="Send (MIDebugger)"></a>
-<center><Font Size=+2>Send</Font> (cpp_int.cc 790)</center>
+<center><Font Size=+2>Send</Font> (cpp_int.cc 835)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3041,6 +3134,24 @@ the program to debug. Only the MI v1 implementation is available.
 
 !=0 OK
 <p>
+
+
+
+<p><hr></p>
+<a name="mi_get_error_str"></a>
+<center><Font Size=+2>mi_get_error_str</Font> (error.c 10)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ mi_get_error_str();
+</pre>
+
+
+
+
 
 
 
@@ -3211,7 +3322,7 @@ The current value of the variable or NULL on error.
 
 <p><hr></p>
 <a name="gmi_set_exec"></a>
-<center><Font Size=+2>gmi_set_exec</Font> (prg_control.c 133)</center>
+<center><Font Size=+2>gmi_set_exec</Font> (prg_control.c 159)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3239,7 +3350,7 @@ Specify the executable and arguments for local debug.
 
 <p><hr></p>
 <a name="gmi_exec_run"></a>
-<center><Font Size=+2>gmi_exec_run</Font> (prg_control.c 154)</center>
+<center><Font Size=+2>gmi_exec_run</Font> (prg_control.c 180)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3267,7 +3378,7 @@ Start running the executable. Remote sessions starts running.
 
 <p><hr></p>
 <a name="gmi_exec_continue"></a>
-<center><Font Size=+2>gmi_exec_continue</Font> (prg_control.c 170)</center>
+<center><Font Size=+2>gmi_exec_continue</Font> (prg_control.c 196)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3295,7 +3406,7 @@ Continue the execution after a "stop".
 
 <p><hr></p>
 <a name="gmi_target_terminal"></a>
-<center><Font Size=+2>gmi_target_terminal</Font> (prg_control.c 187)</center>
+<center><Font Size=+2>gmi_target_terminal</Font> (prg_control.c 213)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3328,7 +3439,7 @@ Indicate which terminal will use the target program. For local sessions.
 
 <p><hr></p>
 <a name="gmi_file_symbol_file"></a>
-<center><Font Size=+2>gmi_file_symbol_file</Font> (prg_control.c 203)</center>
+<center><Font Size=+2>gmi_file_symbol_file</Font> (prg_control.c 229)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3356,7 +3467,7 @@ Specify what's the local copy that have debug info. For remote sessions.
 
 <p><hr></p>
 <a name="gmi_exec_finish"></a>
-<center><Font Size=+2>gmi_exec_finish</Font> (prg_control.c 220)</center>
+<center><Font Size=+2>gmi_exec_finish</Font> (prg_control.c 246)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3385,7 +3496,7 @@ response.
 
 <p><hr></p>
 <a name="gmi_exec_interrupt"></a>
-<center><Font Size=+2>gmi_exec_interrupt</Font> (prg_control.c 239)</center>
+<center><Font Size=+2>gmi_exec_interrupt</Font> (prg_control.c 265)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3420,7 +3531,7 @@ Always 1
 
 <p><hr></p>
 <a name="gmi_exec_next"></a>
-<center><Font Size=+2>gmi_exec_next</Font> (prg_control.c 260)</center>
+<center><Font Size=+2>gmi_exec_next</Font> (prg_control.c 286)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3448,7 +3559,7 @@ Next line of code.
 
 <p><hr></p>
 <a name="gmi_exec_next_instruction"></a>
-<center><Font Size=+2>gmi_exec_next_instruction</Font> (prg_control.c 276)</center>
+<center><Font Size=+2>gmi_exec_next_instruction</Font> (prg_control.c 302)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3476,7 +3587,7 @@ Next line of assembler code.
 
 <p><hr></p>
 <a name="gmi_exec_step"></a>
-<center><Font Size=+2>gmi_exec_step</Font> (prg_control.c 292)</center>
+<center><Font Size=+2>gmi_exec_step</Font> (prg_control.c 318)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3504,7 +3615,7 @@ Next line of code. Get inside functions.
 
 <p><hr></p>
 <a name="gmi_exec_step_instruction"></a>
-<center><Font Size=+2>gmi_exec_step_instruction</Font> (prg_control.c 308)</center>
+<center><Font Size=+2>gmi_exec_step_instruction</Font> (prg_control.c 334)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3532,7 +3643,7 @@ Next line of assembler code. Get inside calls.
 
 <p><hr></p>
 <a name="gmi_exec_until"></a>
-<center><Font Size=+2>gmi_exec_until</Font> (prg_control.c 325)</center>
+<center><Font Size=+2>gmi_exec_until</Font> (prg_control.c 351)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3561,7 +3672,7 @@ line.
 
 <p><hr></p>
 <a name="gmi_exec_return"></a>
-<center><Font Size=+2>gmi_exec_return</Font> (prg_control.c 342)</center>
+<center><Font Size=+2>gmi_exec_return</Font> (prg_control.c 368)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3590,7 +3701,7 @@ location. NULL on error.
 
 <p><hr></p>
 <a name="gmi_exec_kill"></a>
-<center><Font Size=+2>gmi_exec_kill</Font> (prg_control.c 360)</center>
+<center><Font Size=+2>gmi_exec_kill</Font> (prg_control.c 386)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3928,14 +4039,14 @@ Attach to an already running process.
 
 <Font Size=+1><u>Return Value</u></Font><p>
 
-!=0 OK
+The frame of the current location, NULL on error.
 <p>
 
 
 
 <p><hr></p>
 <a name="gmi_target_detach"></a>
-<center><Font Size=+2>gmi_target_detach</Font> (target_man.c 86)</center>
+<center><Font Size=+2>gmi_target_detach</Font> (target_man.c 87)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
