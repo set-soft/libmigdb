@@ -30,6 +30,10 @@ in a row.
 #include <errno.h>
 #include "mi_gdb.h"
 
+#ifndef TEMP_FAILURE_RETRY
+ #define TEMP_FAILURE_RETRY(a) (a)
+#endif
+
 int mi_error=MI_OK;
 char *mi_error_from_gdb=NULL;
 static char *gdb_exe=NULL;

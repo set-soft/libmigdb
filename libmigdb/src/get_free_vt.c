@@ -18,10 +18,25 @@ to my needs and changed license from giftware to GPL.@p
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <linux/vt.h>
 
 #include "mi_gdb.h"
 
+
+#ifndef __linux__
+
+int mi_look_for_free_vt()
+{
+ return -1;
+}
+
+mi_aux_term *gmi_look_for_free_vt()
+{
+ return NULL;
+}
+
+#else
+
+#include <linux/vt.h>
 
 /**[txh]********************************************************************
 
@@ -131,4 +146,6 @@ mi_aux_term *gmi_look_for_free_vt()
  asprintf(&res->tty,"/dev/tty%d",vt);
  return res;
 }
+
+#endif
 
