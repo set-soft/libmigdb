@@ -251,8 +251,12 @@ void mi_free_stop(mi_stop *s)
 
 void mi_free_wp(mi_wp *wp)
 {
- if (!wp)
-    return;
- free(wp->exp);
- free(wp);
+ mi_wp *aux;
+ while (wp)
+   {
+    free(wp->exp);
+    aux=wp->next;
+    free(wp);
+    wp=aux;
+   }
 }

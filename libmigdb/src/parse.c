@@ -1156,7 +1156,7 @@ mi_bkpt *mi_res_bkpt(mi_h *h)
  return b;
 }
 
-mi_wp *mi_get_wp(mi_results *p, enum wp_mode m)
+mi_wp *mi_get_wp(mi_results *p, enum mi_wp_mode m)
 {
  mi_wp *res=mi_alloc_wp();
 
@@ -1168,7 +1168,10 @@ mi_wp *mi_get_wp(mi_results *p, enum wp_mode m)
        if (p->type==t_const && p->var)
          {
           if (strcmp(p->var,"number")==0)
+            {
              res->number=atoi(p->v.cstr);
+             res->enabled=1;
+            }
           else if (strcmp(p->var,"exp")==0)
             {
              res->exp=p->v.cstr;
@@ -1184,7 +1187,7 @@ mi_wp *mi_get_wp(mi_results *p, enum wp_mode m)
 mi_wp *mi_parse_wp_res(mi_output *r)
 {
  mi_results *p;
- enum wp_mode m=wm_unknown;
+ enum mi_wp_mode m=wm_unknown;
 
  /* The info is in a result wpt=... */
  p=r->c;
@@ -1337,6 +1340,11 @@ mi_stop *mi_get_sttoped(mi_results *r)
             {
              res->have_bkptno=1;
              res->bkptno=atoi(r->v.cstr);
+            }
+          else if (!res->have_bkptno && strcmp(r->var,"wpnum")==0)
+            {
+             res->have_wpno=1;
+             res->wpno=atoi(r->v.cstr);
             }
           else if (strcmp(r->var,"gdb-result-var")==0)
             {

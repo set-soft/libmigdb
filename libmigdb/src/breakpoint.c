@@ -111,12 +111,12 @@ void mi_break_disable(mi_h *h, int number)
  mi_send(h,"-break-disable %d\n",number);
 }
 
-void mi_break_watch(mi_h *h, enum wp_mode mode, const char *exp)
+void mi_break_watch(mi_h *h, enum mi_wp_mode mode, const char *exp)
 {
  if (mode==wm_write)
-    mi_send(h,"-break-watch %s\n",exp);
+    mi_send(h,"-break-watch \"%s\"\n",exp);
  else
-    mi_send(h,"-break-watch -%c %s\n",mode==wm_rw ? 'a' : 'r',exp);
+    mi_send(h,"-break-watch -%c \"%s\"\n",mode==wm_rw ? 'a' : 'r',exp);
 }
 
 /* High level versions. */
@@ -257,7 +257,7 @@ error.
   
 ***************************************************************************/
 
-mi_wp *gmi_break_watch(mi_h *h, enum wp_mode mode, const char *exp)
+mi_wp *gmi_break_watch(mi_h *h, enum mi_wp_mode mode, const char *exp)
 {
  mi_break_watch(h,mode,exp);
  return mi_res_wp(h);

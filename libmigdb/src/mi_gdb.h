@@ -157,13 +157,17 @@ struct mi_bkpt_struct
 };
 typedef struct mi_bkpt_struct mi_bkpt;
 
-enum wp_mode { wm_unknown, wm_write, wm_read, wm_rw };
+enum mi_wp_mode { wm_unknown=0, wm_write=1, wm_read=2, wm_rw=3 };
 
 struct mi_wp_struct
 {
  int number;
  char *exp;
- enum wp_mode mode;
+ enum mi_wp_mode mode;
+
+ /* For the user: */
+ struct mi_wp_struct *next;
+ char enabled;
 };
 typedef struct mi_wp_struct mi_wp;
 
@@ -281,15 +285,18 @@ struct mi_stop_struct
  char have_thread_id;
  char have_bkptno;
  char have_exit_code;
+ char have_wpno;
  /* Where stopped. Doesn't exist for sr_exited*. */
  int thread_id;
  mi_frames *frame;
  /* sr_bkpt_hit */
  int bkptno;
- /* sr_*wp_* */
+ /* sr_*wp_* no scope */
  mi_wp *wp;
  char *wp_old;
  char *wp_val;
+ /* sr_wp_scope */
+ int wpno;
  /* sr_function_finished. Not for void func. */
  char *gdb_result_var;
  char *return_value;
@@ -480,7 +487,7 @@ int gmi_break_set_condition(mi_h *h, int number, const char *condition);
 /* Enable or disable a breakpoint. */
 int gmi_break_state(mi_h *h, int number, int enable);
 /* Set a watchpoint. It doesn't work for remote targets! */
-mi_wp *gmi_break_watch(mi_h *h, enum wp_mode mode, const char *exp);
+mi_wp *gmi_break_watch(mi_h *h, enum mi_wp_mode mode, const char *exp);
 
 /* Data Manipulation. */
 /* Evaluate an expression. Returns a parsed tree. */
@@ -601,7 +608,8 @@ public:
                          bool hard_assist=false);
  mi_bkpt *Breakpoint(mi_bkpt *b);
  int BreakDelete(mi_bkpt *b);
- mi_wp *Watchpoint(enum wp_mode mode, const char *exp);
+ mi_wp *Watchpoint(enum mi_wp_mode mode, const char *exp);
+ int WatchDelete(mi_wp *w);
  int RunToMain();
  int StepOver(bool inst=false);
  int TraceInto(bool inst=false);

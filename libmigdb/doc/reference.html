@@ -122,7 +122,6 @@ function. And the examples show how to them together.
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
 <li><a href="#mi_connect_local">mi_connect_local</a>
 <li><a href="#mi_disconnect">mi_disconnect</a>
-<li><a href="#mi_get_error_str">mi_get_error_str</a>
 <li><a href="#mi_look_for_free_vt">mi_look_for_free_vt</a>
 <li><a href="#MIDebugger (MIDebugger)">MIDebugger (MIDebugger)</a>
 <li><a href="#ModifyExpression (MIDebugger)">ModifyExpression (MIDebugger)</a>
@@ -141,6 +140,7 @@ function. And the examples show how to them together.
 <li><a href="#Stop (MIDebugger)">Stop (MIDebugger)</a>
 <li><a href="#TargetUnselect (MIDebugger)">TargetUnselect (MIDebugger)</a>
 <li><a href="#TraceInto (MIDebugger)">TraceInto (MIDebugger)</a>
+<li><a href="#WatchDelete (MIDebugger)">WatchDelete (MIDebugger)</a>
 <li><a href="#Watchpoint (MIDebugger)">Watchpoint (MIDebugger)</a>
 <li><a href="#~MIDebugger (MIDebugger)">~MIDebugger (MIDebugger)</a>
 </Menu>
@@ -192,6 +192,7 @@ function. And the examples show how to them together.
 <li><a href="#Stop (MIDebugger)">Stop (MIDebugger)</a>
 <li><a href="#TargetUnselect (MIDebugger)">TargetUnselect (MIDebugger)</a>
 <li><a href="#TraceInto (MIDebugger)">TraceInto (MIDebugger)</a>
+<li><a href="#WatchDelete (MIDebugger)">WatchDelete (MIDebugger)</a>
 <li><a href="#Watchpoint (MIDebugger)">Watchpoint (MIDebugger)</a>
 <li><a href="#~MIDebugger (MIDebugger)">~MIDebugger (MIDebugger)</a>
 </Menu>
@@ -208,11 +209,6 @@ function. And the examples show how to them together.
 <li><a href="#C++ Interface.">C++ Interface.</a>
 <li><a href="#Connect.">Connect.</a>
 <li><a href="#Data manipulation.">Data manipulation.</a>
-<li><a href="#Error.
-  Comment:
-  Translates error numbers into messages.">Error.
-  Comment:
-  Translates error numbers into messages.</a>
 <li><a href="#Linux VT.">Linux VT.</a>
 <li><a href="#Miscellaneous commands.">Miscellaneous commands.</a>
 <li><a href="#Parser.">Parser.</a>
@@ -317,6 +313,7 @@ Implements a very simple (naive ;-) C++ wrapper.
 <li><a href="#Stop (MIDebugger)">Stop (MIDebugger)</a>
 <li><a href="#TargetUnselect (MIDebugger)">TargetUnselect (MIDebugger)</a>
 <li><a href="#TraceInto (MIDebugger)">TraceInto (MIDebugger)</a>
+<li><a href="#WatchDelete (MIDebugger)">WatchDelete (MIDebugger)</a>
 <li><a href="#Watchpoint (MIDebugger)">Watchpoint (MIDebugger)</a>
 <li><a href="#~MIDebugger (MIDebugger)">~MIDebugger (MIDebugger)</a>
 </Menu>
@@ -331,6 +328,13 @@ This module handles the dialog with gdb, including starting and stopping
 gdb.
 <p>
 
+
+GDB Bug workaround for "file -readnow": I tried to workaround a bug using
+it but looks like this option also have bugs!!!! so I have to use the
+command line option --readnow.
+It also have a bug!!!! when the binary is changed and gdb must reload it
+this option is ignored. So it looks like we have no solution but 3 gdb bugs
+in a row.
 
 <Menu>
 <li><a href="#gmi_end_aux_term">gmi_end_aux_term</a>
@@ -381,22 +385,6 @@ use -data-evaluate-expression to emulate it.
 <Menu>
 <li><a href="#gmi_data_evaluate_expression">gmi_data_evaluate_expression</a>
 <li><a href="#gmi_dir">gmi_dir</a>
-</Menu>
-
-
-
-<p><hr></p>
-<a name="Error.
-  Comment:
-  Translates error numbers into messages."></a>
-<H1>Error.
-  Comment:
-  Translates error numbers into messages.</H1>
-
-
-
-<Menu>
-<li><a href="#mi_get_error_str">mi_get_error_str</a>
 </Menu>
 
 
@@ -728,7 +716,6 @@ It isn't implemented.<br>
 <li><a href="#connect.c">connect.c</a>
 <li><a href="#cpp_int.cc">cpp_int.cc</a>
 <li><a href="#data_man.c">data_man.c</a>
-<li><a href="#error.c">error.c</a>
 <li><a href="#get_free_vt.c">get_free_vt.c</a>
 <li><a href="#misc.c">misc.c</a>
 <li><a href="#prg_control.c">prg_control.c</a>
@@ -809,6 +796,7 @@ It isn't implemented.<br>
 <li><a href="#Stop (MIDebugger)">Stop (MIDebugger)</a>
 <li><a href="#TargetUnselect (MIDebugger)">TargetUnselect (MIDebugger)</a>
 <li><a href="#TraceInto (MIDebugger)">TraceInto (MIDebugger)</a>
+<li><a href="#WatchDelete (MIDebugger)">WatchDelete (MIDebugger)</a>
 <li><a href="#Watchpoint (MIDebugger)">Watchpoint (MIDebugger)</a>
 <li><a href="#~MIDebugger (MIDebugger)">~MIDebugger (MIDebugger)</a>
 </Menu>
@@ -824,18 +812,6 @@ It isn't implemented.<br>
 <Menu>
 <li><a href="#gmi_data_evaluate_expression">gmi_data_evaluate_expression</a>
 <li><a href="#gmi_dir">gmi_dir</a>
-</Menu>
-
-
-
-<p><hr></p>
-<a name="error.c"></a>
-<H1>error.c</H1>
-
-
-
-<Menu>
-<li><a href="#mi_get_error_str">mi_get_error_str</a>
 </Menu>
 
 
@@ -1681,7 +1657,7 @@ It isn't implemented.<br>
 
 <p><hr></p>
 <a name="gmi_break_insert"></a>
-<center><Font Size=+2>gmi_break_insert</Font> (breakpoint.c 122)</center>
+<center><Font Size=+2>gmi_break_insert</Font> (breakpoint.c 133)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1710,7 +1686,7 @@ error.
 
 <p><hr></p>
 <a name="gmi_break_insert_full"></a>
-<center><Font Size=+2>gmi_break_insert_full</Font> (breakpoint.c 139)</center>
+<center><Font Size=+2>gmi_break_insert_full</Font> (breakpoint.c 150)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1739,7 +1715,7 @@ error.
 
 <p><hr></p>
 <a name="gmi_break_insert_full_fl"></a>
-<center><Font Size=+2>gmi_break_insert_full_fl</Font> (breakpoint.c 158)</center>
+<center><Font Size=+2>gmi_break_insert_full_fl</Font> (breakpoint.c 169)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1768,7 +1744,7 @@ error.
 
 <p><hr></p>
 <a name="gmi_break_delete"></a>
-<center><Font Size=+2>gmi_break_delete</Font> (breakpoint.c 177)</center>
+<center><Font Size=+2>gmi_break_delete</Font> (breakpoint.c 188)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1797,7 +1773,7 @@ console.
 
 <p><hr></p>
 <a name="gmi_break_set_times"></a>
-<center><Font Size=+2>gmi_break_set_times</Font> (breakpoint.c 194)</center>
+<center><Font Size=+2>gmi_break_set_times</Font> (breakpoint.c 205)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1812,7 +1788,7 @@ console.
 
 <Font Size=+1><u>Description</u></Font><p>
 
-Modify the "times" count for a breakpoint.
+Modify the "ignore" count for a breakpoint.
 <p>
 
 
@@ -1826,7 +1802,7 @@ console.
 
 <p><hr></p>
 <a name="gmi_break_set_condition"></a>
-<center><Font Size=+2>gmi_break_set_condition</Font> (breakpoint.c 210)</center>
+<center><Font Size=+2>gmi_break_set_condition</Font> (breakpoint.c 221)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1854,7 +1830,7 @@ Associate a condition with the breakpoint.
 
 <p><hr></p>
 <a name="gmi_break_state"></a>
-<center><Font Size=+2>gmi_break_state</Font> (breakpoint.c 227)</center>
+<center><Font Size=+2>gmi_break_state</Font> (breakpoint.c 238)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1883,14 +1859,14 @@ console.
 
 <p><hr></p>
 <a name="gmi_break_watch"></a>
-<center><Font Size=+2>gmi_break_watch</Font> (breakpoint.c 247)</center>
+<center><Font Size=+2>gmi_break_watch</Font> (breakpoint.c 258)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
 
 
 <pre>
- gmi_break_watch(mi_h *h, enum wp_mode mode, const char *exp);
+ gmi_break_watch(mi_h *h, enum mi_wp_mode mode, const char *exp);
 </pre>
 
 
@@ -1912,7 +1888,7 @@ error.
 
 <p><hr></p>
 <a name="mi_connect_local"></a>
-<center><Font Size=+2>mi_connect_local</Font> (connect.c 252)</center>
+<center><Font Size=+2>mi_connect_local</Font> (connect.c 259)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1941,7 +1917,7 @@ A new mi_h structure or NULL on error.
 
 <p><hr></p>
 <a name="mi_disconnect"></a>
-<center><Font Size=+2>mi_disconnect</Font> (connect.c 319)</center>
+<center><Font Size=+2>mi_disconnect</Font> (connect.c 327)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1964,7 +1940,7 @@ Close connection. You should ask gdb to quit first <a href="#gmi_gdb_exit">gmi_g
 
 <p><hr></p>
 <a name="gmi_start_xterm"></a>
-<center><Font Size=+2>gmi_start_xterm</Font> (connect.c 435)</center>
+<center><Font Size=+2>gmi_start_xterm</Font> (connect.c 443)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1993,7 +1969,7 @@ release it.
 
 <p><hr></p>
 <a name="gmi_end_aux_term"></a>
-<center><Font Size=+2>gmi_end_aux_term</Font> (connect.c 535)</center>
+<center><Font Size=+2>gmi_end_aux_term</Font> (connect.c 543)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2016,7 +1992,7 @@ Closes the auxiliar terminal and releases the allocated memory.
 
 <p><hr></p>
 <a name="MIDebugger (MIDebugger)"></a>
-<center><Font Size=+2>MIDebugger</Font> (cpp_int.cc 21)</center>
+<center><Font Size=+2>MIDebugger</Font> (cpp_int.cc 22)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2044,7 +2020,7 @@ Use <a href="#Connect (MIDebugger)">Connect</a> after it.
 
 <p><hr></p>
 <a name="~MIDebugger (MIDebugger)"></a>
-<center><Font Size=+2>~MIDebugger</Font> (cpp_int.cc 37)</center>
+<center><Font Size=+2>~MIDebugger</Font> (cpp_int.cc 38)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2072,7 +2048,7 @@ This is the destructor for the class. It tries to change the state to
 
 <p><hr></p>
 <a name="Connect (MIDebugger)"></a>
-<center><Font Size=+2>Connect</Font> (cpp_int.cc 76)</center>
+<center><Font Size=+2>Connect</Font> (cpp_int.cc 77)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2108,7 +2084,7 @@ SelectTarget members. <a href="#SelectTargetX11 (MIDebugger)">SelectTargetX11</a
 
 <p><hr></p>
 <a name="Disconnect (MIDebugger)"></a>
-<center><Font Size=+2>Disconnect</Font> (cpp_int.cc 102)</center>
+<center><Font Size=+2>Disconnect</Font> (cpp_int.cc 103)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2143,7 +2119,7 @@ killed.
 
 <p><hr></p>
 <a name="SelectTargetTTY (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetTTY</Font> (cpp_int.cc 124)</center>
+<center><Font Size=+2>SelectTargetTTY</Font> (cpp_int.cc 125)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2176,7 +2152,7 @@ Protected member that implements <a href="#SelectTargetX11 (MIDebugger)">SelectT
 
 <p><hr></p>
 <a name="SelectTargetX11 (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetX11</Font> (cpp_int.cc 169)</center>
+<center><Font Size=+2>SelectTargetX11</Font> (cpp_int.cc 170)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2214,7 +2190,7 @@ to define breakpoints and similar stuff. To finish it use
 
 <p><hr></p>
 <a name="SelectTargetLinux (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetLinux</Font> (cpp_int.cc 191)</center>
+<center><Font Size=+2>SelectTargetLinux</Font> (cpp_int.cc 192)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2252,7 +2228,7 @@ to define breakpoints and similar stuff. To finish it use
 
 <p><hr></p>
 <a name="SelectTargetRemote (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetRemote</Font> (cpp_int.cc 217)</center>
+<center><Font Size=+2>SelectTargetRemote</Font> (cpp_int.cc 218)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2298,7 +2274,7 @@ o-&gt;SelectTargetRemote("./exec_file","192.168.1.65:5000");
 
 <p><hr></p>
 <a name="SelectTargetPID (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetPID</Font> (cpp_int.cc 245)</center>
+<center><Font Size=+2>SelectTargetPID</Font> (cpp_int.cc 246)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2330,7 +2306,7 @@ Starts a local session using an already running process.
 
 <p><hr></p>
 <a name="TargetUnselect (MIDebugger)"></a>
-<center><Font Size=+2>TargetUnselect</Font> (cpp_int.cc 275)</center>
+<center><Font Size=+2>TargetUnselect</Font> (cpp_int.cc 281)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2364,7 +2340,7 @@ terminal. For remote debugging it uses "detach". Can be called when in
 
 <p><hr></p>
 <a name="Run (MIDebugger)"></a>
-<center><Font Size=+2>Run</Font> (cpp_int.cc 311)</center>
+<center><Font Size=+2>Run</Font> (cpp_int.cc 317)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2400,7 +2376,7 @@ information is known using Poll. You can stop the program using <a href="#Stop (
 
 <p><hr></p>
 <a name="Stop (MIDebugger)"></a>
-<center><Font Size=+2>Stop</Font> (cpp_int.cc 341)</center>
+<center><Font Size=+2>Stop</Font> (cpp_int.cc 347)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2441,7 +2417,7 @@ execution.
 
 <p><hr></p>
 <a name="Poll (MIDebugger)"></a>
-<center><Font Size=+2>Poll</Font> (cpp_int.cc 362)</center>
+<center><Font Size=+2>Poll</Font> (cpp_int.cc 368)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2478,7 +2454,7 @@ mi_stop structure if we got it or will be NULL if we didn't.
 
 <p><hr></p>
 <a name="Continue (MIDebugger)"></a>
-<center><Font Size=+2>Continue</Font> (cpp_int.cc 408)</center>
+<center><Font Size=+2>Continue</Font> (cpp_int.cc 414)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2511,7 +2487,7 @@ is stopped. On success will change to "running" state.
 
 <p><hr></p>
 <a name="RunOrContinue (MIDebugger)"></a>
-<center><Font Size=+2>RunOrContinue</Font> (cpp_int.cc 430)</center>
+<center><Font Size=+2>RunOrContinue</Font> (cpp_int.cc 436)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2546,7 +2522,7 @@ state is "target_specified" or "stopped". On success will change to
 
 <p><hr></p>
 <a name="Kill (MIDebugger)"></a>
-<center><Font Size=+2>Kill</Font> (cpp_int.cc 449)</center>
+<center><Font Size=+2>Kill</Font> (cpp_int.cc 455)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2581,7 +2557,7 @@ if you want to just stop the program call <a href="#Stop (MIDebugger)">Stop</a>.
 
 <p><hr></p>
 <a name="Breakpoint (MIDebugger)"></a>
-<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 493)</center>
+<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 499)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2614,7 +2590,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="Breakpoint (MIDebugger) <1>"></a>
-<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 510)</center>
+<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 516)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2647,7 +2623,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="BreakpointFull (MIDebugger)"></a>
-<center><Font Size=+2>BreakpointFull</Font> (cpp_int.cc 529)</center>
+<center><Font Size=+2>BreakpointFull</Font> (cpp_int.cc 564)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2680,7 +2656,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="BreakDelete (MIDebugger)"></a>
-<center><Font Size=+2>BreakDelete</Font> (cpp_int.cc 549)</center>
+<center><Font Size=+2>BreakDelete</Font> (cpp_int.cc 584)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2713,14 +2689,14 @@ called when the state is "stopped" or "target_specified".
 
 <p><hr></p>
 <a name="Watchpoint (MIDebugger)"></a>
-<center><Font Size=+2>Watchpoint</Font> (cpp_int.cc 566)</center>
+<center><Font Size=+2>Watchpoint</Font> (cpp_int.cc 601)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
 
 
 <pre>
- MIDebugger::Watchpoint(enum wp_mode mode, const char *exp);
+ MIDebugger::Watchpoint(enum mi_wp_mode mode, const char *exp);
 </pre>
 
 
@@ -2745,8 +2721,41 @@ An mi_wp structure or NULL if error.
 
 
 <p><hr></p>
+<a name="WatchDelete (MIDebugger)"></a>
+<center><Font Size=+2>WatchDelete</Font> (cpp_int.cc 618)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ MIDebugger::WatchDelete(mi_wp *w);
+</pre>
+
+
+<Font Size=+1><u>Member of the class:</u></Font>
+MIDebugger
+<p>
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Removes the specified watchpoint. It doesn't free the structure. Can be
+called when the state is "stopped" or "target_specified".
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+!=0 OK
+<p>
+
+
+
+<p><hr></p>
 <a name="RunToMain (MIDebugger)"></a>
-<center><Font Size=+2>RunToMain</Font> (cpp_int.cc 584)</center>
+<center><Font Size=+2>RunToMain</Font> (cpp_int.cc 636)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2780,7 +2789,7 @@ change to "running".
 
 <p><hr></p>
 <a name="StepOver (MIDebugger)"></a>
-<center><Font Size=+2>StepOver</Font> (cpp_int.cc 608)</center>
+<center><Font Size=+2>StepOver</Font> (cpp_int.cc 660)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2815,7 +2824,7 @@ next command. If successfully the state will change to "running".
 
 <p><hr></p>
 <a name="GoTo (MIDebugger)"></a>
-<center><Font Size=+2>GoTo</Font> (cpp_int.cc 640)</center>
+<center><Font Size=+2>GoTo</Font> (cpp_int.cc 692)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2849,7 +2858,7 @@ Fails for any other state.
 
 <p><hr></p>
 <a name="FinishFun (MIDebugger)"></a>
-<center><Font Size=+2>FinishFun</Font> (cpp_int.cc 677)</center>
+<center><Font Size=+2>FinishFun</Font> (cpp_int.cc 729)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2882,7 +2891,7 @@ usable when we are in the "stopped" state.
 
 <p><hr></p>
 <a name="ReturnNow (MIDebugger)"></a>
-<center><Font Size=+2>ReturnNow</Font> (cpp_int.cc 694)</center>
+<center><Font Size=+2>ReturnNow</Font> (cpp_int.cc 746)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2915,7 +2924,7 @@ synchronous function.
 
 <p><hr></p>
 <a name="CallStack (MIDebugger)"></a>
-<center><Font Size=+2>CallStack</Font> (cpp_int.cc 710)</center>
+<center><Font Size=+2>CallStack</Font> (cpp_int.cc 762)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2947,7 +2956,7 @@ MIDebugger
 
 <p><hr></p>
 <a name="TraceInto (MIDebugger)"></a>
-<center><Font Size=+2>TraceInto</Font> (cpp_int.cc 746)</center>
+<center><Font Size=+2>TraceInto</Font> (cpp_int.cc 798)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2982,7 +2991,7 @@ next command. If successfully the state will change to "running".
 
 <p><hr></p>
 <a name="EvalExpression (MIDebugger)"></a>
-<center><Font Size=+2>EvalExpression</Font> (cpp_int.cc 778)</center>
+<center><Font Size=+2>EvalExpression</Font> (cpp_int.cc 830)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3016,7 +3025,7 @@ The result of the expression (use free) or NULL.
 
 <p><hr></p>
 <a name="ModifyExpression (MIDebugger)"></a>
-<center><Font Size=+2>ModifyExpression</Font> (cpp_int.cc 803)</center>
+<center><Font Size=+2>ModifyExpression</Font> (cpp_int.cc 855)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3050,7 +3059,7 @@ The result of the expression (use free) or NULL.
 
 <p><hr></p>
 <a name="Send (MIDebugger)"></a>
-<center><Font Size=+2>Send</Font> (cpp_int.cc 835)</center>
+<center><Font Size=+2>Send</Font> (cpp_int.cc 887)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3134,24 +3143,6 @@ the program to debug. Only the MI v1 implementation is available.
 
 !=0 OK
 <p>
-
-
-
-<p><hr></p>
-<a name="mi_get_error_str"></a>
-<center><Font Size=+2>mi_get_error_str</Font> (error.c 10)</center>
-
-<Font Size=+1><u>Syntax</u></Font><p>
-
-
-
-<pre>
- mi_get_error_str();
-</pre>
-
-
-
-
 
 
 

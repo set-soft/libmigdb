@@ -1,4 +1,8 @@
-$Log$.
+$Log$
+Revision 1.6  2004/07/30 21:17:08  set
+* Added: More workarounds to gdb bugs. I fille the cli/1725, gdb/1726 and
+gdb/1727 bug reports. I hope they get fixed :-(
+
 Revision 1.5  2004/07/28 21:09:40  set
 * Fixed: Some mess in the bkpts structure. The "times" field is how many
 times we hit a breakpoint, just information. The real value is "ignore".

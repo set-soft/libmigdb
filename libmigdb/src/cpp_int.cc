@@ -600,11 +600,28 @@ state is "stopped" or "target_specified".
   
 ***************************************************************************/
 
-mi_wp *MIDebugger::Watchpoint(enum wp_mode mode, const char *exp)
+mi_wp *MIDebugger::Watchpoint(enum mi_wp_mode mode, const char *exp)
 {
  if (state!=stopped && state!=target_specified)
     return NULL;
  return gmi_break_watch(h,mode,exp);
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Removes the specified watchpoint. It doesn't free the structure. Can be
+called when the state is "stopped" or "target_specified".
+  
+  Return: !=0 OK
+  
+***************************************************************************/
+
+int MIDebugger::WatchDelete(mi_wp *w)
+{
+ if ((state!=stopped && state!=target_specified) || !w)
+    return 0;
+ return gmi_break_delete(h,w->number);
 }
 
 /**[txh]********************************************************************
