@@ -254,13 +254,13 @@ mi_frames *MIDebugger::SelectTargetPID(const char *exec, int pid)
     return NULL;
 
  mode=dmPID;
- preRun=true;
+ preRun=false;
  targetEndian=enUnknown;
 
  mi_frames *res=gmi_target_attach(h,pid);
  if (res)
    {
-    state=target_specified;
+    state=stopped;
 
     /* Tell gdb to load symbols from the local copy. */
     if (!gmi_file_symbol_file(h,exec))
@@ -999,6 +999,7 @@ int MIDebugger::GetErrorNumberSt()
    {
     state=target_specified;
     TargetUnselect();
+    state=connected;
     Disconnect();
    }
  return mi_error;

@@ -1,4 +1,11 @@
-$Log$
+$Log$.
+Revision 1.15  2004/08/23 23:45:23  set
+* Added: Mechanism to disable psym workarounds. The mechanism allows to
+enable/disable workarounds in a simple and compatible way.
+* Added: Mechanism to force MI version.
+* Added: Enabled a couple of MI v2 things when the version is forced to 2+.
+* Added: BreakAfter(mi_bkpt *b) C++ wrapper.
+
 Revision 1.14  2004/08/17 20:40:11  set
 * Added: Disassembler functionality.
 
