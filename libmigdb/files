@@ -1,0 +1,12 @@
+doc/*.frt
+doc/*.html
+examples/Makefile
+examples/*.c*
+src/Makefile
+src/*.c*
+src/*.h
+files
+DJGPP.why
+GPL-license
+README
+compress.sh
