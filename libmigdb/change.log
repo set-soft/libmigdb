@@ -1,4 +1,9 @@
 $Log$.
+Revision 1.16  2004/08/24 21:10:21  set
+* Modified: PID targets starts stopped.
+* Fixed: When debugging an attached process if gdb dies we failed to go to
+disconnected.
+
 Revision 1.15  2004/08/23 23:45:23  set
 * Added: Mechanism to disable psym workarounds. The mechanism allows to
 enable/disable workarounds in a simple and compatible way.

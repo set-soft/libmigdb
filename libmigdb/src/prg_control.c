@@ -138,6 +138,11 @@ void mi_exec_until(mi_h *h, const char *file, int line)
     mi_send(h,"-exec-until %s:%d\n",file,line);
 }
 
+void mi_exec_until_addr(mi_h *h, void *addr)
+{
+ mi_send(h,"-exec-until *%p\n",addr);
+}
+
 void mi_exec_return(mi_h *h)
 {
  mi_send(h,"-exec-return\n");
@@ -355,6 +360,22 @@ line.
 int gmi_exec_until(mi_h *h, const char *file, int line)
 {
  mi_exec_until(h,file,line);
+ return mi_res_simple_running(h);
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Execute until location is reached.
+
+  Command: -exec-until (using *address)
+  Return: !=0 OK
+  
+***************************************************************************/
+
+int gmi_exec_until_addr(mi_h *h, void *addr)
+{
+ mi_exec_until_addr(h,addr);
  return mi_res_simple_running(h);
 }
 

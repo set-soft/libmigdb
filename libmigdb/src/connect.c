@@ -324,6 +324,8 @@ similar to a "FILE *" for stdio.
 
 mi_h *mi_connect_local()
 {
+ /* Start without error. */
+ mi_error=MI_OK;
  /* Alloc the handle structure. */
  mi_h *h=mi_alloc_h();
  if (!h)

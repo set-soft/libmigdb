@@ -286,12 +286,12 @@ terminal. For remote debugging it uses "detach". Can be called when in
 
 int MIDebugger::TargetUnselect()
 {
- if (state!=target_specified)
-    return 0;
  switch (mode)
    {
     case dmX11:
     case dmLinux:
+         if (state!=target_specified)
+            return 0;
          if (aux_tty)
            {
             gmi_end_aux_term(aux_tty);
@@ -300,8 +300,12 @@ int MIDebugger::TargetUnselect()
          break;
     case dmPID:
     case dmRemote:
-         if (!gmi_target_detach(h))
-            return 0;
+         if (state!=target_specified)
+           {
+            if (state!=stopped || !gmi_target_detach(h))
+               return 0;
+           }
+         break;
    }
  state=connected;
  return 1;
@@ -724,6 +728,44 @@ int MIDebugger::GoTo(const char *file, int line)
    }
  return res;
 }
+
+/**[txh]********************************************************************
+
+  Description:
+  Executes until the specified point. If the state is "target_specified" it
+uses a temporal breakpoint. If the state is "stopped" it uses -exec-until.
+Fails for any other state.
+  
+  Return: !=0 OK
+  
+***************************************************************************/
+
+int MIDebugger::GoTo(void *addr)
+{
+ int res=0;
+
+ if (state==target_specified)
+   {// We aren't running
+    // Use a temporal breakpoint
+    char buf[32];
+    snprintf(buf,32,"*%p",addr);
+    mi_bkpt *b=Breakpoint(buf,true);
+    if (b)
+      {
+       mi_free_bkpt(b);
+       waitingTempBkpt=1;
+       res=Run();
+      }
+   }
+ else if (state==stopped)
+   {
+    res=gmi_exec_until_addr(h,addr);
+    if (res)
+       state=running;
+   }
+ return res;
+}
+
 
 /**[txh]********************************************************************
 

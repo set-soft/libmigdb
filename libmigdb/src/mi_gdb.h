@@ -538,6 +538,7 @@ int gmi_exec_step(mi_h *h);
 int gmi_exec_step_instruction(mi_h *h);
 /* Execute until location is reached. If file is NULL then is until next line. */
 int gmi_exec_until(mi_h *h, const char *file, int line);
+int gmi_exec_until_addr(mi_h *h, void *addr);
 /* Return to previous frame inmediatly. */
 mi_frames *gmi_exec_return(mi_h *h);
 /* Just kill the program. Please read the notes in prg_control.c. */
@@ -600,6 +601,7 @@ mi_asm_insns *gmi_data_disassemble_fl(mi_h *h, const char *file, int line,
 mi_chg_reg *gmi_data_list_register_names(mi_h *h, int *how_many);
 mi_chg_reg *gmi_data_list_changed_registers(mi_h *h);
 int gmi_data_list_register_values(mi_h *h, enum mi_gvar_fmt fmt, mi_chg_reg *l);
+mi_chg_reg *gmi_data_list_all_register_values(mi_h *h, int *how_many);
 
 /* Stack manipulation. */
 /* List of frames. Arguments aren't filled. */
@@ -729,6 +731,7 @@ public:
  int StepOver(bool inst=false);
  int TraceInto(bool inst=false);
  int GoTo(const char *file, int line);
+ int GoTo(void *addr);
  int FinishFun();
  mi_frames *ReturnNow();
  mi_frames *CallStack(bool args);
