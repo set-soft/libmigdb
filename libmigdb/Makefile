@@ -1,4 +1,7 @@
 #!/usr/bin/make
+
+.PHONY: libmigdb
+
 all: libmigdb
 
 libmigdb:
