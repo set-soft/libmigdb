@@ -60,6 +60,15 @@ diff -u -r1.64 mi-main.c
 Note I had to remove an end of comment in the patch to include it here.
 This bug forced me to create another set of functions. The only way is to
 first get the values and then the names.
+Fixed by Changelog entry:
+
+2004-09-12  Salvador E. Tropea  <set@users.sf.net>
+            Andrew Cagney  <cagney@gnu.org>
+
+        * mi/mi-main.c (mi_cmd_data_list_changed_registers)
+        (mi_cmd_data_list_register_values)
+        (mi_cmd_data_write_register_values): Include the PSEUDO_REGS in
+        the register number computation.
 
 ***************************************************************************/
 
