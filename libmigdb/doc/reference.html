@@ -123,6 +123,7 @@ function. And the examples show how to them together.
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
 <li><a href="#mi_connect_local">mi_connect_local</a>
 <li><a href="#mi_disconnect">mi_disconnect</a>
+<li><a href="#mi_get_error_str">mi_get_error_str</a>
 <li><a href="#mi_look_for_free_vt">mi_look_for_free_vt</a>
 <li><a href="#MIDebugger (MIDebugger)">MIDebugger (MIDebugger)</a>
 <li><a href="#ModifyExpression (MIDebugger)">ModifyExpression (MIDebugger)</a>
@@ -211,6 +212,11 @@ function. And the examples show how to them together.
 <li><a href="#C++ Interface.">C++ Interface.</a>
 <li><a href="#Connect.">Connect.</a>
 <li><a href="#Data manipulation.">Data manipulation.</a>
+<li><a href="#Error.
+  Comment:
+  Translates error numbers into messages.">Error.
+  Comment:
+  Translates error numbers into messages.</a>
 <li><a href="#Linux VT.">Linux VT.</a>
 <li><a href="#Miscellaneous commands.">Miscellaneous commands.</a>
 <li><a href="#Parser.">Parser.</a>
@@ -388,6 +394,22 @@ use -data-evaluate-expression to emulate it.
 <Menu>
 <li><a href="#gmi_data_evaluate_expression">gmi_data_evaluate_expression</a>
 <li><a href="#gmi_dir">gmi_dir</a>
+</Menu>
+
+
+
+<p><hr></p>
+<a name="Error.
+  Comment:
+  Translates error numbers into messages."></a>
+<H1>Error.
+  Comment:
+  Translates error numbers into messages.</H1>
+
+
+
+<Menu>
+<li><a href="#mi_get_error_str">mi_get_error_str</a>
 </Menu>
 
 
@@ -719,6 +741,7 @@ It isn't implemented.<br>
 <li><a href="#connect.c">connect.c</a>
 <li><a href="#cpp_int.cc">cpp_int.cc</a>
 <li><a href="#data_man.c">data_man.c</a>
+<li><a href="#error.c">error.c</a>
 <li><a href="#get_free_vt.c">get_free_vt.c</a>
 <li><a href="#misc.c">misc.c</a>
 <li><a href="#prg_control.c">prg_control.c</a>
@@ -816,6 +839,18 @@ It isn't implemented.<br>
 <Menu>
 <li><a href="#gmi_data_evaluate_expression">gmi_data_evaluate_expression</a>
 <li><a href="#gmi_dir">gmi_dir</a>
+</Menu>
+
+
+
+<p><hr></p>
+<a name="error.c"></a>
+<H1>error.c</H1>
+
+
+
+<Menu>
+<li><a href="#mi_get_error_str">mi_get_error_str</a>
 </Menu>
 
 
@@ -3179,6 +3214,24 @@ the program to debug. Only the MI v1 implementation is available.
 
 !=0 OK
 <p>
+
+
+
+<p><hr></p>
+<a name="mi_get_error_str"></a>
+<center><Font Size=+2>mi_get_error_str</Font> (error.c 10)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ mi_get_error_str();
+</pre>
+
+
+
+
 
 
 

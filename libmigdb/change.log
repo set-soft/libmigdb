@@ -1,4 +1,11 @@
-$Log$.
+$Log$
+Revision 1.10  2004/08/08 23:07:00  set
+* Added: A function to know the endian of the target.
+* Added: A workaround to another bug in gdb: responses like the endian and
+architecture are sent to the console and not to the result record. So now
+the -gdb-show command traps the console (a copy) and if the RR have no info
+and we got something in the console that's returned.
+
 Revision 1.9  2004/08/06 20:59:44  set
 * Fixed: The gdb dialog was amazingly slow. It was just the fact that I
 trusted in the non-blocking flag and sleep, but this annoys the scheduler
