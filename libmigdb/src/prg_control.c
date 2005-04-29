@@ -110,9 +110,12 @@ void mi_exec_interrupt(mi_h *h)
  mi_send(h,"-exec-interrupt\n");
 }
 
-void mi_exec_next(mi_h *h)
+void mi_exec_next(mi_h *h, int count)
 {
- mi_send(h,"-exec-next\n");
+ if (count>1)
+    mi_send(h,"-exec-next %d\n",count);
+ else
+    mi_send(h,"-exec-next\n");
 }
 
 void mi_exec_next_instruction(mi_h *h)
@@ -120,9 +123,12 @@ void mi_exec_next_instruction(mi_h *h)
  mi_send(h,"-exec-next-instruction\n");
 }
 
-void mi_exec_step(mi_h *h)
+void mi_exec_step(mi_h *h, int count)
 {
- mi_send(h,"-exec-step\n");
+ if (count>1)
+    mi_send(h,"-exec-step %d\n",count);
+ else
+    mi_send(h,"-exec-step\n");
 }
 
 void mi_exec_step_instruction(mi_h *h)
@@ -294,7 +300,23 @@ int gmi_exec_interrupt(mi_h *h)
 
 int gmi_exec_next(mi_h *h)
 {
- mi_exec_next(h);
+ mi_exec_next(h,1);
+ return mi_res_simple_running(h);
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Skip count lines of code.
+
+  Command: -exec-next count
+  Return: !=0 OK
+
+***************************************************************************/
+
+int gmi_exec_next_cnt(mi_h *h, int count)
+{
+ mi_exec_next(h,count);
  return mi_res_simple_running(h);
 }
 
@@ -305,7 +327,7 @@ int gmi_exec_next(mi_h *h)
 
   Command: -exec-next-instruction
   Return: !=0 OK
-  
+
 ***************************************************************************/
 
 int gmi_exec_next_instruction(mi_h *h)
@@ -320,13 +342,29 @@ int gmi_exec_next_instruction(mi_h *h)
   Next line of code. Get inside functions.
 
   Command: -exec-step
-  Return: !=0 OK 
+  Return: !=0 OK
   
 ***************************************************************************/
 
 int gmi_exec_step(mi_h *h)
 {
- mi_exec_step(h);
+ mi_exec_step(h,1);
+ return mi_res_simple_running(h);
+}
+
+/**[txh]********************************************************************
+
+  Description:
+  Next count lines of code. Get inside functions.
+
+  Command: -exec-step count
+  Return: !=0 OK
+
+***************************************************************************/
+
+int gmi_exec_step_cnt(mi_h *h, int count)
+{
+ mi_exec_step(h,count);
  return mi_res_simple_running(h);
 }
 

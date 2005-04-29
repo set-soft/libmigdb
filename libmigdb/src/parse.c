@@ -153,6 +153,43 @@ int mi_get_list_res(mi_results *r, const char *str, const char **end, char close
  return 0;
 }
 
+#ifdef __APPLE__
+int mi_get_tuple_val(mi_results *r, const char *str, const char **end)
+{
+ mi_results *last_r, *rs;
+
+ last_r=NULL;
+ do
+   {
+    rs=mi_alloc_results();
+    if (!rs || !mi_get_value(rs,str,&str))
+      {
+       mi_free_results(rs);
+       return 0;
+      }
+    /* Note that rs->var is NULL, that indicates that's just a value and not
+       a result. */
+    if (last_r)
+       last_r->next=rs;
+    else
+       r->v.rs=rs;
+    last_r=rs;
+    if (*str=='}')
+      {
+       *end=str+1;
+       return 1;
+      }
+    if (*str!=',')
+       break;
+    str++;
+   }
+ while (1);
+
+ mi_error=MI_PARSER;
+ return 0;
+}
+#endif /* __APPLE__ */
+
 int mi_get_tuple(mi_results *r, const char *str, const char **end)
 {
  if (*str!='{')
@@ -167,7 +204,13 @@ int mi_get_tuple(mi_results *r, const char *str, const char **end)
     *end=str+1;
     return 1;
    }
+ #ifdef __APPLE__
+ if (mi_is_var_name_char(*str))
+    return mi_get_list_res(r,str,end,'}');
+ return mi_get_tuple_val(r,str,end);
+ #else /* __APPLE__ */
  return mi_get_list_res(r,str,end,'}');
+ #endif /* __APPLE__ */
 }
 
 int mi_get_list_val(mi_results *r, const char *str, const char **end)
@@ -1389,7 +1432,7 @@ const char *mi_reason_enum_to_str(enum mi_stop_reason r)
  return NULL;
 }
 
-mi_stop *mi_get_sttoped(mi_results *r)
+mi_stop *mi_get_stopped(mi_results *r)
 {
  mi_stop *res=mi_alloc_stop();
 
@@ -1426,12 +1469,12 @@ mi_stop *mi_get_sttoped(mi_results *r)
              res->return_value=r->v.cstr;
              r->v.cstr=NULL;
             }
-          else if (strcmp(r->var,"signal_name")==0)
+          else if (strcmp(r->var,"signal-name")==0)
             {
              res->signal_name=r->v.cstr;
              r->v.cstr=NULL;
             }
-          else if (strcmp(r->var,"signal_meaning")==0)
+          else if (strcmp(r->var,"signal-meaning")==0)
             {
              res->signal_meaning=r->v.cstr;
              r->v.cstr=NULL;
@@ -1486,7 +1529,7 @@ mi_stop *mi_res_stop(mi_h *h)
    {
     mi_output *sr=mi_get_stop_record(o);
     if (sr)
-       stop=mi_get_sttoped(sr->c);
+       stop=mi_get_stopped(sr->c);
    }
  mi_free_output(o);
 

@@ -218,6 +218,7 @@ struct mi_aux_term_struct
 {
  pid_t pid;
  char *tty;
+ int master;
 };
 typedef struct mi_aux_term_struct mi_aux_term;
 
@@ -433,6 +434,7 @@ mi_output *mi_get_rrecord(mi_output *r);
    If that's the case return the reason for the stop.
    If the output contains an error the description is returned in reason. */
 int mi_get_async_stop_reason(mi_output *r, char **reason);
+mi_stop *mi_get_stopped(mi_results *r);
 mi_frames *mi_get_async_frame(mi_output *r);
 /* Wait until gdb sends a response.
    Then check if the response is of the desired type. */
@@ -536,10 +538,14 @@ int gmi_exec_finish(mi_h *h);
 int gmi_exec_interrupt(mi_h *h);
 /* Next line of code. */
 int gmi_exec_next(mi_h *h);
+/* Next count lines of code. */
+int gmi_exec_next_cnt(mi_h *h, int count);
 /* Next line of assembler code. */
 int gmi_exec_next_instruction(mi_h *h);
 /* Next line of code. Get inside functions. */
 int gmi_exec_step(mi_h *h);
+/* Next count lines of code. Get inside functions. */
+int gmi_exec_step_cnt(mi_h *h, int count);
 /* Next line of assembler code. Get inside calls. */
 int gmi_exec_step_instruction(mi_h *h);
 /* Execute until location is reached. If file is NULL then is until next line. */
