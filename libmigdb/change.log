@@ -1,4 +1,14 @@
-$Log$.
+$Log$
+Revision 1.29  2005/05/12 20:18:56  set
+* Applied patches from Greg Watson (gwatson/lanl/gov):
+  * Removes apple code from src/get_free_vt.c
+  * Adds a new file src/get_free_pty.c This is a new functionality to
+    communicate with the debuggie using a pseudo terminal.
+  * Adds new mi_pty structure to src/mi_gdb.h
+  * Modifies src/Makefile to build get_free_pty.o
+  * Adds new file examples/pty_test.c
+  * Modifies examples/Makefile to build pty_test
+
 Revision 1.28  2005/04/29 20:11:13  set
 * Applied patches from Greg Watson (gwatson/lanl/gov):
   * Add pty support for Darwin, including extending the mi_aux_term

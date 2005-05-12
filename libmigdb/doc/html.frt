@@ -86,7 +86,7 @@ Constant="GDB/MI library"
 # Description for the help
 Constant="This document describes the functions of libmigdb library
 @p
-This document applies to version 0.8.1 of the GDB/Machine interface
+This document applies to version 0.8.9 of the GDB/Machine interface
 library.
 @p
 Most of the C++ interface is fully documented. But not all the C

@@ -9,7 +9,7 @@ This document describes the functions of libmigdb library
 
 <p>
 
-This document applies to version 0.8.1 of the GDB/Machine interface
+This document applies to version 0.8.9 of the GDB/Machine interface
 library.
 
 <p>
@@ -71,23 +71,28 @@ function. And the examples show how to them together.
 <li><a href="#gmi_data_evaluate_expression">gmi_data_evaluate_expression</a>
 <li><a href="#gmi_dir">gmi_dir</a>
 <li><a href="#gmi_end_aux_term">gmi_end_aux_term</a>
+<li><a href="#gmi_end_pty">gmi_end_pty</a>
 <li><a href="#gmi_exec_continue">gmi_exec_continue</a>
 <li><a href="#gmi_exec_finish">gmi_exec_finish</a>
 <li><a href="#gmi_exec_interrupt">gmi_exec_interrupt</a>
 <li><a href="#gmi_exec_kill">gmi_exec_kill</a>
 <li><a href="#gmi_exec_next">gmi_exec_next</a>
+<li><a href="#gmi_exec_next_cnt">gmi_exec_next_cnt</a>
 <li><a href="#gmi_exec_next_instruction">gmi_exec_next_instruction</a>
 <li><a href="#gmi_exec_return">gmi_exec_return</a>
 <li><a href="#gmi_exec_run">gmi_exec_run</a>
 <li><a href="#gmi_exec_step">gmi_exec_step</a>
+<li><a href="#gmi_exec_step_cnt">gmi_exec_step_cnt</a>
 <li><a href="#gmi_exec_step_instruction">gmi_exec_step_instruction</a>
 <li><a href="#gmi_exec_until">gmi_exec_until</a>
+<li><a href="#gmi_exec_until_addr">gmi_exec_until_addr</a>
 <li><a href="#gmi_file_symbol_file">gmi_file_symbol_file</a>
 <li><a href="#gmi_full_var_create">gmi_full_var_create</a>
 <li><a href="#gmi_gdb_exit">gmi_gdb_exit</a>
 <li><a href="#gmi_gdb_set">gmi_gdb_set</a>
 <li><a href="#gmi_gdb_show">gmi_gdb_show</a>
 <li><a href="#gmi_gdb_version">gmi_gdb_version</a>
+<li><a href="#gmi_look_for_free_pty">gmi_look_for_free_pty</a>
 <li><a href="#gmi_look_for_free_vt">gmi_look_for_free_vt</a>
 <li><a href="#gmi_set_exec">gmi_set_exec</a>
 <li><a href="#gmi_stack_info_depth">gmi_stack_info_depth</a>
@@ -104,6 +109,7 @@ function. And the examples show how to them together.
 <li><a href="#gmi_target_detach">gmi_target_detach</a>
 <li><a href="#gmi_target_select">gmi_target_select</a>
 <li><a href="#gmi_target_terminal">gmi_target_terminal</a>
+<li><a href="#gmi_thread_list_all_threads">gmi_thread_list_all_threads</a>
 <li><a href="#gmi_thread_list_ids">gmi_thread_list_ids</a>
 <li><a href="#gmi_thread_select">gmi_thread_select</a>
 <li><a href="#gmi_var_assign">gmi_var_assign</a>
@@ -120,11 +126,16 @@ function. And the examples show how to them together.
 <li><a href="#gmi_var_show_format">gmi_var_show_format</a>
 <li><a href="#gmi_var_update">gmi_var_update</a>
 <li><a href="#GoTo (MIDebugger)">GoTo (MIDebugger)</a>
+<li><a href="#GoTo (MIDebugger) <1>">GoTo (MIDebugger) <1></a>
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
 <li><a href="#mi_connect_local">mi_connect_local</a>
 <li><a href="#mi_disconnect">mi_disconnect</a>
+<li><a href="#mi_force_version">mi_force_version</a>
 <li><a href="#mi_get_error_str">mi_get_error_str</a>
+<li><a href="#mi_get_workaround">mi_get_workaround</a>
+<li><a href="#mi_look_for_free_pty">mi_look_for_free_pty</a>
 <li><a href="#mi_look_for_free_vt">mi_look_for_free_vt</a>
+<li><a href="#mi_set_workaround">mi_set_workaround</a>
 <li><a href="#MIDebugger (MIDebugger)">MIDebugger (MIDebugger)</a>
 <li><a href="#ModifyExpression (MIDebugger)">ModifyExpression (MIDebugger)</a>
 <li><a href="#Poll (MIDebugger)">Poll (MIDebugger)</a>
@@ -177,6 +188,7 @@ function. And the examples show how to them together.
 <li><a href="#FillTypeVal (MIDebugger)">FillTypeVal (MIDebugger)</a>
 <li><a href="#FinishFun (MIDebugger)">FinishFun (MIDebugger)</a>
 <li><a href="#GoTo (MIDebugger)">GoTo (MIDebugger)</a>
+<li><a href="#GoTo (MIDebugger) <1>">GoTo (MIDebugger) <1></a>
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
 <li><a href="#MIDebugger (MIDebugger)">MIDebugger (MIDebugger)</a>
 <li><a href="#ModifyExpression (MIDebugger)">ModifyExpression (MIDebugger)</a>
@@ -221,6 +233,7 @@ function. And the examples show how to them together.
 <li><a href="#Miscellaneous commands.">Miscellaneous commands.</a>
 <li><a href="#Parser.">Parser.</a>
 <li><a href="#Program control.">Program control.</a>
+<li><a href="#pseudo terminal">pseudo terminal</a>
 <li><a href="#Stack manipulation.">Stack manipulation.</a>
 <li><a href="#Symbol query.">Symbol query.</a>
 <li><a href="#Target manipulation.">Target manipulation.</a>
@@ -304,6 +317,7 @@ Implements a very simple (naive ;-) C++ wrapper.
 <li><a href="#FillTypeVal (MIDebugger)">FillTypeVal (MIDebugger)</a>
 <li><a href="#FinishFun (MIDebugger)">FinishFun (MIDebugger)</a>
 <li><a href="#GoTo (MIDebugger)">GoTo (MIDebugger)</a>
+<li><a href="#GoTo (MIDebugger) <1>">GoTo (MIDebugger) <1></a>
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
 <li><a href="#MIDebugger (MIDebugger)">MIDebugger (MIDebugger)</a>
 <li><a href="#ModifyExpression (MIDebugger)">ModifyExpression (MIDebugger)</a>
@@ -350,6 +364,9 @@ in a row.
 <li><a href="#gmi_start_xterm">gmi_start_xterm</a>
 <li><a href="#mi_connect_local">mi_connect_local</a>
 <li><a href="#mi_disconnect">mi_disconnect</a>
+<li><a href="#mi_force_version">mi_force_version</a>
+<li><a href="#mi_get_workaround">mi_get_workaround</a>
+<li><a href="#mi_set_workaround">mi_set_workaround</a>
 </Menu>
 
 
@@ -365,10 +382,10 @@ GDB/MI commands for the "Data manipulation" section.
 <pre>
 gdb command:                       Implemented?
 
--data-disassemble                  No
+-data-disassemble                  Yes
 -data-evaluate-expression          Yes
 -data-list-changed-registers       No
--data-list-register-names          No
+-data-list-register-names          Yes
 -data-list-register-values         No
 -data-read-memory                  No
 -display-delete                    N.A. (delete display)
@@ -390,6 +407,44 @@ results are sent to the console. So it looks like the best is to manually
 use -data-evaluate-expression to emulate it.
 <p>
 
+
+2) GDB bug mi/1770: Affects gdb&lt;=6.2, when you ask for the names of the
+registers you get it plus the name of the "pseudo-registers", but if you
+try to get the value of a pseudo-register you get an error saying the
+register number is invalid. I reported to gdb-patches@sources.redhat.com
+on 2004/08/25 and as I didn't get any answer I filled a bug report on
+2004/09/02. The patch to fix this annoying bug is:
+
+Index: gdb/mi/mi-main.c
+===================================================================
+RCS file: /cvs/src/src/gdb/mi/mi-main.c,v
+retrieving revision 1.64
+diff -u -r1.64 mi-main.c
+--- gdb/mi/mi-main.c    3 Aug 2004 00:57:27 -0000       1.64
++++ gdb/mi/mi-main.c    25 Aug 2004 14:12:50 -0000
+@ -423,7 +423,7 @
+      case, some entries of REGISTER_NAME will change depending upon
+      the particular processor being debugged.
+
+-  numregs = NUM_REGS;
++  numregs = NUM_REGS + NUM_PSEUDO_REGS;
+
+   if (argc == 0)
+     {
+----
+
+Note I had to remove an end of comment in the patch to include it here.
+This bug forced me to create another set of functions. The only way is to
+first get the values and then the names.
+Fixed by Changelog entry:
+
+2004-09-12  Salvador E. Tropea  &lt;set@users.sf.net&gt;
+            Andrew Cagney  &lt;cagney@gnu.org&gt;
+
+        * mi/mi-main.c (mi_cmd_data_list_changed_registers)
+        (mi_cmd_data_list_register_values)
+        (mi_cmd_data_write_register_values): Include the PSEUDO_REGS in
+        the register number computation.
 
 <Menu>
 <li><a href="#gmi_data_evaluate_expression">gmi_data_evaluate_expression</a>
@@ -538,15 +593,44 @@ can say it won't change we must use the CLI command.
 <li><a href="#gmi_exec_interrupt">gmi_exec_interrupt</a>
 <li><a href="#gmi_exec_kill">gmi_exec_kill</a>
 <li><a href="#gmi_exec_next">gmi_exec_next</a>
+<li><a href="#gmi_exec_next_cnt">gmi_exec_next_cnt</a>
 <li><a href="#gmi_exec_next_instruction">gmi_exec_next_instruction</a>
 <li><a href="#gmi_exec_return">gmi_exec_return</a>
 <li><a href="#gmi_exec_run">gmi_exec_run</a>
 <li><a href="#gmi_exec_step">gmi_exec_step</a>
+<li><a href="#gmi_exec_step_cnt">gmi_exec_step_cnt</a>
 <li><a href="#gmi_exec_step_instruction">gmi_exec_step_instruction</a>
 <li><a href="#gmi_exec_until">gmi_exec_until</a>
+<li><a href="#gmi_exec_until_addr">gmi_exec_until_addr</a>
 <li><a href="#gmi_file_symbol_file">gmi_file_symbol_file</a>
 <li><a href="#gmi_set_exec">gmi_set_exec</a>
 <li><a href="#gmi_target_terminal">gmi_target_terminal</a>
+</Menu>
+
+
+
+<p><hr></p>
+<a name="pseudo terminal"></a>
+<H1>pseudo terminal</H1>
+
+Helper to find a free pseudo terminal. Use this if you need to manage
+  input *and* output to the target process. If you just need output then
+  define a handler for target output stream records (assuming that this
+  is working for your particular version of gdb).
+  Usage:
+
+        mi_pty *pty = gmi_look_for_free_pty();
+        if (pty) gmi_target_terminal(mih, pty-&gt;slave);
+        ...
+        * reading from pty-&gt;master will get stdout from target *
+        * writing to pty-&gt;master will send to target stdin *
+        
+  Note: Contributed by Greg Watson (gwatson lanl gov)
+
+<Menu>
+<li><a href="#gmi_end_pty">gmi_end_pty</a>
+<li><a href="#gmi_look_for_free_pty">gmi_look_for_free_pty</a>
+<li><a href="#mi_look_for_free_pty">mi_look_for_free_pty</a>
 </Menu>
 
 
@@ -659,16 +743,13 @@ GDB/MI commands for the "Thread Commands" section.
 <pre>
 gdb command:              Implemented?
 -thread-info              N.A.
--thread-list-all-threads  N.A. (info threads)
+-thread-list-all-threads  Yes, implemented as "info threads"
 -thread-list-ids          Yes
 -thread-select            Yes
 </pre>
 
-Note: Untested.
-<p>
-
-
 <Menu>
+<li><a href="#gmi_thread_list_all_threads">gmi_thread_list_all_threads</a>
 <li><a href="#gmi_thread_list_ids">gmi_thread_list_ids</a>
 <li><a href="#gmi_thread_select">gmi_thread_select</a>
 </Menu>
@@ -742,6 +823,7 @@ It isn't implemented.<br>
 <li><a href="#cpp_int.cc">cpp_int.cc</a>
 <li><a href="#data_man.c">data_man.c</a>
 <li><a href="#error.c">error.c</a>
+<li><a href="#get_free_pty.c">get_free_pty.c</a>
 <li><a href="#get_free_vt.c">get_free_vt.c</a>
 <li><a href="#misc.c">misc.c</a>
 <li><a href="#prg_control.c">prg_control.c</a>
@@ -782,6 +864,9 @@ It isn't implemented.<br>
 <li><a href="#gmi_start_xterm">gmi_start_xterm</a>
 <li><a href="#mi_connect_local">mi_connect_local</a>
 <li><a href="#mi_disconnect">mi_disconnect</a>
+<li><a href="#mi_force_version">mi_force_version</a>
+<li><a href="#mi_get_workaround">mi_get_workaround</a>
+<li><a href="#mi_set_workaround">mi_set_workaround</a>
 </Menu>
 
 
@@ -805,6 +890,7 @@ It isn't implemented.<br>
 <li><a href="#FillTypeVal (MIDebugger)">FillTypeVal (MIDebugger)</a>
 <li><a href="#FinishFun (MIDebugger)">FinishFun (MIDebugger)</a>
 <li><a href="#GoTo (MIDebugger)">GoTo (MIDebugger)</a>
+<li><a href="#GoTo (MIDebugger) <1>">GoTo (MIDebugger) <1></a>
 <li><a href="#Kill (MIDebugger)">Kill (MIDebugger)</a>
 <li><a href="#MIDebugger (MIDebugger)">MIDebugger (MIDebugger)</a>
 <li><a href="#ModifyExpression (MIDebugger)">ModifyExpression (MIDebugger)</a>
@@ -856,6 +942,20 @@ It isn't implemented.<br>
 
 
 <p><hr></p>
+<a name="get_free_pty.c"></a>
+<H1>get_free_pty.c</H1>
+
+
+
+<Menu>
+<li><a href="#gmi_end_pty">gmi_end_pty</a>
+<li><a href="#gmi_look_for_free_pty">gmi_look_for_free_pty</a>
+<li><a href="#mi_look_for_free_pty">mi_look_for_free_pty</a>
+</Menu>
+
+
+
+<p><hr></p>
 <a name="get_free_vt.c"></a>
 <H1>get_free_vt.c</H1>
 
@@ -895,12 +995,15 @@ It isn't implemented.<br>
 <li><a href="#gmi_exec_interrupt">gmi_exec_interrupt</a>
 <li><a href="#gmi_exec_kill">gmi_exec_kill</a>
 <li><a href="#gmi_exec_next">gmi_exec_next</a>
+<li><a href="#gmi_exec_next_cnt">gmi_exec_next_cnt</a>
 <li><a href="#gmi_exec_next_instruction">gmi_exec_next_instruction</a>
 <li><a href="#gmi_exec_return">gmi_exec_return</a>
 <li><a href="#gmi_exec_run">gmi_exec_run</a>
 <li><a href="#gmi_exec_step">gmi_exec_step</a>
+<li><a href="#gmi_exec_step_cnt">gmi_exec_step_cnt</a>
 <li><a href="#gmi_exec_step_instruction">gmi_exec_step_instruction</a>
 <li><a href="#gmi_exec_until">gmi_exec_until</a>
+<li><a href="#gmi_exec_until_addr">gmi_exec_until_addr</a>
 <li><a href="#gmi_file_symbol_file">gmi_file_symbol_file</a>
 <li><a href="#gmi_set_exec">gmi_set_exec</a>
 <li><a href="#gmi_target_terminal">gmi_target_terminal</a>
@@ -949,6 +1052,7 @@ It isn't implemented.<br>
 
 
 <Menu>
+<li><a href="#gmi_thread_list_all_threads">gmi_thread_list_all_threads</a>
 <li><a href="#gmi_thread_list_ids">gmi_thread_list_ids</a>
 <li><a href="#gmi_thread_select">gmi_thread_select</a>
 </Menu>
@@ -1000,12 +1104,15 @@ It isn't implemented.<br>
 <li><a href="#-exec-finish">-exec-finish</a>
 <li><a href="#-exec-interrupt [replacement]">-exec-interrupt [replacement]</a>
 <li><a href="#-exec-next">-exec-next</a>
+<li><a href="#-exec-next count">-exec-next count</a>
 <li><a href="#-exec-next-instruction">-exec-next-instruction</a>
 <li><a href="#-exec-return">-exec-return</a>
 <li><a href="#-exec-run">-exec-run</a>
 <li><a href="#-exec-step">-exec-step</a>
+<li><a href="#-exec-step count">-exec-step count</a>
 <li><a href="#-exec-step-instruction">-exec-step-instruction</a>
 <li><a href="#-exec-until">-exec-until</a>
+<li><a href="#-exec-until (using *address)">-exec-until (using *address)</a>
 <li><a href="#-file-exec-and-symbols + -exec-arguments">-file-exec-and-symbols + -exec-arguments</a>
 <li><a href="#-file-symbol-file">-file-symbol-file</a>
 <li><a href="#-gdb-exit">-gdb-exit</a>
@@ -1022,6 +1129,7 @@ It isn't implemented.<br>
 <li><a href="#-target-attach [using attach]">-target-attach [using attach]</a>
 <li><a href="#-target-detach">-target-detach</a>
 <li><a href="#-target-select">-target-select</a>
+<li><a href="#-thread-list-all-threads">-thread-list-all-threads</a>
 <li><a href="#-thread-list-ids">-thread-list-ids</a>
 <li><a href="#-thread-select">-thread-select</a>
 <li><a href="#-var-assign">-var-assign</a>
@@ -1223,6 +1331,18 @@ It isn't implemented.<br>
 
 
 <p><hr></p>
+<a name="-exec-next count"></a>
+<H1>-exec-next count</H1>
+
+
+
+<Menu>
+<li><a href="#gmi_exec_next_cnt">gmi_exec_next_cnt</a>
+</Menu>
+
+
+
+<p><hr></p>
 <a name="-exec-next-instruction"></a>
 <H1>-exec-next-instruction</H1>
 
@@ -1271,6 +1391,18 @@ It isn't implemented.<br>
 
 
 <p><hr></p>
+<a name="-exec-step count"></a>
+<H1>-exec-step count</H1>
+
+
+
+<Menu>
+<li><a href="#gmi_exec_step_cnt">gmi_exec_step_cnt</a>
+</Menu>
+
+
+
+<p><hr></p>
 <a name="-exec-step-instruction"></a>
 <H1>-exec-step-instruction</H1>
 
@@ -1290,6 +1422,18 @@ It isn't implemented.<br>
 
 <Menu>
 <li><a href="#gmi_exec_until">gmi_exec_until</a>
+</Menu>
+
+
+
+<p><hr></p>
+<a name="-exec-until (using *address)"></a>
+<H1>-exec-until (using *address)</H1>
+
+
+
+<Menu>
+<li><a href="#gmi_exec_until_addr">gmi_exec_until_addr</a>
 </Menu>
 
 
@@ -1484,6 +1628,18 @@ It isn't implemented.<br>
 
 <Menu>
 <li><a href="#gmi_target_select">gmi_target_select</a>
+</Menu>
+
+
+
+<p><hr></p>
+<a name="-thread-list-all-threads"></a>
+<H1>-thread-list-all-threads</H1>
+
+
+
+<Menu>
+<li><a href="#gmi_thread_list_all_threads">gmi_thread_list_all_threads</a>
 </Menu>
 
 
@@ -1927,7 +2083,7 @@ error.
 
 <p><hr></p>
 <a name="mi_connect_local"></a>
-<center><Font Size=+2>mi_connect_local</Font> (connect.c 296)</center>
+<center><Font Size=+2>mi_connect_local</Font> (connect.c 330)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1956,7 +2112,7 @@ A new mi_h structure or NULL on error.
 
 <p><hr></p>
 <a name="mi_disconnect"></a>
-<center><Font Size=+2>mi_disconnect</Font> (connect.c 364)</center>
+<center><Font Size=+2>mi_disconnect</Font> (connect.c 410)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -1979,7 +2135,7 @@ Close connection. You should ask gdb to quit first <a href="#gmi_gdb_exit">gmi_g
 
 <p><hr></p>
 <a name="gmi_start_xterm"></a>
-<center><Font Size=+2>gmi_start_xterm</Font> (connect.c 482)</center>
+<center><Font Size=+2>gmi_start_xterm</Font> (connect.c 647)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2008,7 +2164,7 @@ release it.
 
 <p><hr></p>
 <a name="gmi_end_aux_term"></a>
-<center><Font Size=+2>gmi_end_aux_term</Font> (connect.c 582)</center>
+<center><Font Size=+2>gmi_end_aux_term</Font> (connect.c 764)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2026,6 +2182,81 @@ release it.
 Closes the auxiliar terminal and releases the allocated memory.
 <p>
 
+
+
+
+<p><hr></p>
+<a name="mi_force_version"></a>
+<center><Font Size=+2>mi_force_version</Font> (connect.c 781)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ mi_force_version(mi_h *h, unsigned vMajor, unsigned vMiddle, unsigned vMinor);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Forces the MI version. Currently the library can't detect it so you must
+force it manually. GDB 5.x implemented MI v1 and 6.x v2.
+<p>
+
+
+
+
+<p><hr></p>
+<a name="mi_set_workaround"></a>
+<center><Font Size=+2>mi_set_workaround</Font> (connect.c 794)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ mi_set_workaround(unsigned wa, int enable);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Dis/Enables the @var{wa} workaround for a bug in gdb.
+<p>
+
+
+
+
+<p><hr></p>
+<a name="mi_get_workaround"></a>
+<center><Font Size=+2>mi_get_workaround</Font> (connect.c 813)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ mi_get_workaround(unsigned wa);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Finds if the @var{wa} workaround for a bug in gdb is enabled.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+!=0 if enabled.
+<p>
 
 
 
@@ -2059,7 +2290,7 @@ Use <a href="#Connect (MIDebugger)">Connect</a> after it.
 
 <p><hr></p>
 <a name="~MIDebugger (MIDebugger)"></a>
-<center><Font Size=+2>~MIDebugger</Font> (cpp_int.cc 39)</center>
+<center><Font Size=+2>~MIDebugger</Font> (cpp_int.cc 40)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2087,7 +2318,7 @@ This is the destructor for the class. It tries to change the state to
 
 <p><hr></p>
 <a name="Connect (MIDebugger)"></a>
-<center><Font Size=+2>Connect</Font> (cpp_int.cc 78)</center>
+<center><Font Size=+2>Connect</Font> (cpp_int.cc 79)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2123,7 +2354,7 @@ SelectTarget members. <a href="#SelectTargetX11 (MIDebugger)">SelectTargetX11</a
 
 <p><hr></p>
 <a name="Disconnect (MIDebugger)"></a>
-<center><Font Size=+2>Disconnect</Font> (cpp_int.cc 104)</center>
+<center><Font Size=+2>Disconnect</Font> (cpp_int.cc 105)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2158,7 +2389,7 @@ killed.
 
 <p><hr></p>
 <a name="SelectTargetTTY (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetTTY</Font> (cpp_int.cc 126)</center>
+<center><Font Size=+2>SelectTargetTTY</Font> (cpp_int.cc 127)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2191,7 +2422,7 @@ Protected member that implements <a href="#SelectTargetX11 (MIDebugger)">SelectT
 
 <p><hr></p>
 <a name="SelectTargetX11 (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetX11</Font> (cpp_int.cc 172)</center>
+<center><Font Size=+2>SelectTargetX11</Font> (cpp_int.cc 180)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2229,7 +2460,7 @@ to define breakpoints and similar stuff. To finish it use
 
 <p><hr></p>
 <a name="SelectTargetLinux (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetLinux</Font> (cpp_int.cc 194)</center>
+<center><Font Size=+2>SelectTargetLinux</Font> (cpp_int.cc 202)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2267,7 +2498,7 @@ to define breakpoints and similar stuff. To finish it use
 
 <p><hr></p>
 <a name="SelectTargetRemote (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetRemote</Font> (cpp_int.cc 220)</center>
+<center><Font Size=+2>SelectTargetRemote</Font> (cpp_int.cc 228)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2313,7 +2544,7 @@ o-&gt;SelectTargetRemote("./exec_file","192.168.1.65:5000");
 
 <p><hr></p>
 <a name="SelectTargetPID (MIDebugger)"></a>
-<center><Font Size=+2>SelectTargetPID</Font> (cpp_int.cc 249)</center>
+<center><Font Size=+2>SelectTargetPID</Font> (cpp_int.cc 258)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2345,7 +2576,7 @@ Starts a local session using an already running process.
 
 <p><hr></p>
 <a name="TargetUnselect (MIDebugger)"></a>
-<center><Font Size=+2>TargetUnselect</Font> (cpp_int.cc 285)</center>
+<center><Font Size=+2>TargetUnselect</Font> (cpp_int.cc 295)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2379,7 +2610,7 @@ terminal. For remote debugging it uses "detach". Can be called when in
 
 <p><hr></p>
 <a name="Run (MIDebugger)"></a>
-<center><Font Size=+2>Run</Font> (cpp_int.cc 321)</center>
+<center><Font Size=+2>Run</Font> (cpp_int.cc 335)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2415,7 +2646,7 @@ information is known using Poll. You can stop the program using <a href="#Stop (
 
 <p><hr></p>
 <a name="Stop (MIDebugger)"></a>
-<center><Font Size=+2>Stop</Font> (cpp_int.cc 351)</center>
+<center><Font Size=+2>Stop</Font> (cpp_int.cc 365)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2456,7 +2687,7 @@ execution.
 
 <p><hr></p>
 <a name="Poll (MIDebugger)"></a>
-<center><Font Size=+2>Poll</Font> (cpp_int.cc 372)</center>
+<center><Font Size=+2>Poll</Font> (cpp_int.cc 386)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2493,7 +2724,7 @@ mi_stop structure if we got it or will be NULL if we didn't.
 
 <p><hr></p>
 <a name="Continue (MIDebugger)"></a>
-<center><Font Size=+2>Continue</Font> (cpp_int.cc 418)</center>
+<center><Font Size=+2>Continue</Font> (cpp_int.cc 432)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2526,7 +2757,7 @@ is stopped. On success will change to "running" state.
 
 <p><hr></p>
 <a name="RunOrContinue (MIDebugger)"></a>
-<center><Font Size=+2>RunOrContinue</Font> (cpp_int.cc 440)</center>
+<center><Font Size=+2>RunOrContinue</Font> (cpp_int.cc 454)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2561,7 +2792,7 @@ state is "target_specified" or "stopped". On success will change to
 
 <p><hr></p>
 <a name="Kill (MIDebugger)"></a>
-<center><Font Size=+2>Kill</Font> (cpp_int.cc 459)</center>
+<center><Font Size=+2>Kill</Font> (cpp_int.cc 473)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2596,7 +2827,7 @@ if you want to just stop the program call <a href="#Stop (MIDebugger)">Stop</a>.
 
 <p><hr></p>
 <a name="Breakpoint (MIDebugger)"></a>
-<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 506)</center>
+<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 520)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2629,7 +2860,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="Breakpoint (MIDebugger) <1>"></a>
-<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 523)</center>
+<center><Font Size=+2>Breakpoint</Font> (cpp_int.cc 537)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2662,7 +2893,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="BreakpointFull (MIDebugger)"></a>
-<center><Font Size=+2>BreakpointFull</Font> (cpp_int.cc 571)</center>
+<center><Font Size=+2>BreakpointFull</Font> (cpp_int.cc 585)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2695,7 +2926,7 @@ An mi_bkpt structure or NULL if error.
 
 <p><hr></p>
 <a name="BreakDelete (MIDebugger)"></a>
-<center><Font Size=+2>BreakDelete</Font> (cpp_int.cc 591)</center>
+<center><Font Size=+2>BreakDelete</Font> (cpp_int.cc 605)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2728,7 +2959,7 @@ called when the state is "stopped" or "target_specified".
 
 <p><hr></p>
 <a name="Watchpoint (MIDebugger)"></a>
-<center><Font Size=+2>Watchpoint</Font> (cpp_int.cc 608)</center>
+<center><Font Size=+2>Watchpoint</Font> (cpp_int.cc 622)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2761,7 +2992,7 @@ An mi_wp structure or NULL if error.
 
 <p><hr></p>
 <a name="WatchDelete (MIDebugger)"></a>
-<center><Font Size=+2>WatchDelete</Font> (cpp_int.cc 625)</center>
+<center><Font Size=+2>WatchDelete</Font> (cpp_int.cc 639)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2794,7 +3025,7 @@ called when the state is "stopped" or "target_specified".
 
 <p><hr></p>
 <a name="RunToMain (MIDebugger)"></a>
-<center><Font Size=+2>RunToMain</Font> (cpp_int.cc 643)</center>
+<center><Font Size=+2>RunToMain</Font> (cpp_int.cc 657)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2828,7 +3059,7 @@ change to "running".
 
 <p><hr></p>
 <a name="StepOver (MIDebugger)"></a>
-<center><Font Size=+2>StepOver</Font> (cpp_int.cc 667)</center>
+<center><Font Size=+2>StepOver</Font> (cpp_int.cc 681)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2863,7 +3094,7 @@ next command. If successfully the state will change to "running".
 
 <p><hr></p>
 <a name="GoTo (MIDebugger)"></a>
-<center><Font Size=+2>GoTo</Font> (cpp_int.cc 699)</center>
+<center><Font Size=+2>GoTo</Font> (cpp_int.cc 713)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2896,8 +3127,42 @@ Fails for any other state.
 
 
 <p><hr></p>
+<a name="GoTo (MIDebugger) <1>"></a>
+<center><Font Size=+2>GoTo</Font> (cpp_int.cc 751)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ MIDebugger::GoTo(void *addr);
+</pre>
+
+
+<Font Size=+1><u>Member of the class:</u></Font>
+MIDebugger
+<p>
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Executes until the specified point. If the state is "target_specified" it
+uses a temporal breakpoint. If the state is "stopped" it uses -exec-until.
+Fails for any other state.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+!=0 OK
+<p>
+
+
+
+<p><hr></p>
 <a name="FinishFun (MIDebugger)"></a>
-<center><Font Size=+2>FinishFun</Font> (cpp_int.cc 736)</center>
+<center><Font Size=+2>FinishFun</Font> (cpp_int.cc 788)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2930,7 +3195,7 @@ usable when we are in the "stopped" state.
 
 <p><hr></p>
 <a name="ReturnNow (MIDebugger)"></a>
-<center><Font Size=+2>ReturnNow</Font> (cpp_int.cc 753)</center>
+<center><Font Size=+2>ReturnNow</Font> (cpp_int.cc 808)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2963,7 +3228,7 @@ synchronous function.
 
 <p><hr></p>
 <a name="CallStack (MIDebugger)"></a>
-<center><Font Size=+2>CallStack</Font> (cpp_int.cc 769)</center>
+<center><Font Size=+2>CallStack</Font> (cpp_int.cc 824)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -2995,7 +3260,7 @@ MIDebugger
 
 <p><hr></p>
 <a name="TraceInto (MIDebugger)"></a>
-<center><Font Size=+2>TraceInto</Font> (cpp_int.cc 805)</center>
+<center><Font Size=+2>TraceInto</Font> (cpp_int.cc 860)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3030,7 +3295,7 @@ next command. If successfully the state will change to "running".
 
 <p><hr></p>
 <a name="EvalExpression (MIDebugger)"></a>
-<center><Font Size=+2>EvalExpression</Font> (cpp_int.cc 837)</center>
+<center><Font Size=+2>EvalExpression</Font> (cpp_int.cc 892)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3064,7 +3329,7 @@ The result of the expression (use free) or NULL.
 
 <p><hr></p>
 <a name="ModifyExpression (MIDebugger)"></a>
-<center><Font Size=+2>ModifyExpression</Font> (cpp_int.cc 863)</center>
+<center><Font Size=+2>ModifyExpression</Font> (cpp_int.cc 918)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3098,7 +3363,7 @@ The result of the expression (use free) or NULL.
 
 <p><hr></p>
 <a name="Send (MIDebugger)"></a>
-<center><Font Size=+2>Send</Font> (cpp_int.cc 895)</center>
+<center><Font Size=+2>Send</Font> (cpp_int.cc 950)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3130,7 +3395,7 @@ Sends a command to gdb.
 
 <p><hr></p>
 <a name="FillTypeVal (MIDebugger)"></a>
-<center><Font Size=+2>FillTypeVal</Font> (cpp_int.cc 915)</center>
+<center><Font Size=+2>FillTypeVal</Font> (cpp_int.cc 970)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3162,7 +3427,7 @@ Fills the type and value fields of the mi_gvar provided list.
 
 <p><hr></p>
 <a name="gmi_data_evaluate_expression"></a>
-<center><Font Size=+2>gmi_data_evaluate_expression</Font> (data_man.c 80)</center>
+<center><Font Size=+2>gmi_data_evaluate_expression</Font> (data_man.c 163)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3190,14 +3455,14 @@ The resulting value (as plain text) or NULL on error.
 
 <p><hr></p>
 <a name="gmi_dir"></a>
-<center><Font Size=+2>gmi_dir</Font> (data_man.c 97)</center>
+<center><Font Size=+2>gmi_dir</Font> (data_man.c 180)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
 
 
 <pre>
- gmi_dir(mi_h *h, char *path);
+ gmi_dir(mi_h *h, const char *path);
 </pre>
 
 
@@ -3236,15 +3501,96 @@ the program to debug. Only the MI v1 implementation is available.
 
 
 <p><hr></p>
-<a name="mi_look_for_free_vt"></a>
-<center><Font Size=+2>mi_look_for_free_vt</Font> (get_free_vt.c 34)</center>
+<a name="mi_look_for_free_pty"></a>
+<center><Font Size=+2>mi_look_for_free_pty</Font> (get_free_pty.c 41)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
 
 
 <pre>
- mi_look_for_free_vt();
+ mi_look_for_free_pty(int *master, char **slave);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Look for a free and usable pseudo terminal. Low level, use
+<a href="#gmi_look_for_free_pty">gmi_look_for_free_pty</a>.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+A file descriptor connected to the master pty and the name of the slave device, or &lt;0 on error.
+<p>
+
+
+
+<p><hr></p>
+<a name="gmi_look_for_free_pty"></a>
+<center><Font Size=+2>gmi_look_for_free_pty</Font> (get_free_pty.c 92)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ gmi_look_for_free_pty();
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Look for a free and usable pseudo terminal to be used by the child.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+A new mi_pty structure, you can use <a href="#gmi_end_pty">gmi_end_pty</a> to
+release it.
+<p>
+
+
+
+<p><hr></p>
+<a name="gmi_end_pty"></a>
+<center><Font Size=+2>gmi_end_pty</Font> (get_free_pty.c 124)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ gmi_end_pty(mi_pty *p);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Closes the pseudo termial master and releases the allocated memory.
+<p>
+
+
+
+
+<p><hr></p>
+<a name="mi_look_for_free_vt"></a>
+<center><Font Size=+2>mi_look_for_free_vt</Font> (get_free_vt.c 51)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ mi_look_for_free_vt() 53;
 </pre>
 
 
@@ -3266,14 +3612,14 @@ The VT number or &lt;0 on error.
 
 <p><hr></p>
 <a name="gmi_look_for_free_vt"></a>
-<center><Font Size=+2>gmi_look_for_free_vt</Font> (get_free_vt.c 118)</center>
+<center><Font Size=+2>gmi_look_for_free_vt</Font> (get_free_vt.c 135)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
 
 
 <pre>
- gmi_look_for_free_vt();
+ gmi_look_for_free_vt() 137;
 </pre>
 
 
@@ -3402,7 +3748,7 @@ The current value of the variable or NULL on error.
 
 <p><hr></p>
 <a name="gmi_set_exec"></a>
-<center><Font Size=+2>gmi_set_exec</Font> (prg_control.c 159)</center>
+<center><Font Size=+2>gmi_set_exec</Font> (prg_control.c 172)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3430,7 +3776,7 @@ Specify the executable and arguments for local debug.
 
 <p><hr></p>
 <a name="gmi_exec_run"></a>
-<center><Font Size=+2>gmi_exec_run</Font> (prg_control.c 180)</center>
+<center><Font Size=+2>gmi_exec_run</Font> (prg_control.c 193)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3458,7 +3804,7 @@ Start running the executable. Remote sessions starts running.
 
 <p><hr></p>
 <a name="gmi_exec_continue"></a>
-<center><Font Size=+2>gmi_exec_continue</Font> (prg_control.c 196)</center>
+<center><Font Size=+2>gmi_exec_continue</Font> (prg_control.c 209)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3486,7 +3832,7 @@ Continue the execution after a "stop".
 
 <p><hr></p>
 <a name="gmi_target_terminal"></a>
-<center><Font Size=+2>gmi_target_terminal</Font> (prg_control.c 213)</center>
+<center><Font Size=+2>gmi_target_terminal</Font> (prg_control.c 226)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3519,7 +3865,7 @@ Indicate which terminal will use the target program. For local sessions.
 
 <p><hr></p>
 <a name="gmi_file_symbol_file"></a>
-<center><Font Size=+2>gmi_file_symbol_file</Font> (prg_control.c 229)</center>
+<center><Font Size=+2>gmi_file_symbol_file</Font> (prg_control.c 242)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3547,7 +3893,7 @@ Specify what's the local copy that have debug info. For remote sessions.
 
 <p><hr></p>
 <a name="gmi_exec_finish"></a>
-<center><Font Size=+2>gmi_exec_finish</Font> (prg_control.c 246)</center>
+<center><Font Size=+2>gmi_exec_finish</Font> (prg_control.c 259)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3576,7 +3922,7 @@ response.
 
 <p><hr></p>
 <a name="gmi_exec_interrupt"></a>
-<center><Font Size=+2>gmi_exec_interrupt</Font> (prg_control.c 265)</center>
+<center><Font Size=+2>gmi_exec_interrupt</Font> (prg_control.c 278)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3611,7 +3957,7 @@ Always 1
 
 <p><hr></p>
 <a name="gmi_exec_next"></a>
-<center><Font Size=+2>gmi_exec_next</Font> (prg_control.c 286)</center>
+<center><Font Size=+2>gmi_exec_next</Font> (prg_control.c 299)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3638,8 +3984,36 @@ Next line of code.
 
 
 <p><hr></p>
+<a name="gmi_exec_next_cnt"></a>
+<center><Font Size=+2>gmi_exec_next_cnt</Font> (prg_control.c 315)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ gmi_exec_next_cnt(mi_h *h, int count);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Skip count lines of code.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+!=0 OK
+<p>
+
+
+
+<p><hr></p>
 <a name="gmi_exec_next_instruction"></a>
-<center><Font Size=+2>gmi_exec_next_instruction</Font> (prg_control.c 302)</center>
+<center><Font Size=+2>gmi_exec_next_instruction</Font> (prg_control.c 331)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3667,7 +4041,7 @@ Next line of assembler code.
 
 <p><hr></p>
 <a name="gmi_exec_step"></a>
-<center><Font Size=+2>gmi_exec_step</Font> (prg_control.c 318)</center>
+<center><Font Size=+2>gmi_exec_step</Font> (prg_control.c 347)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3694,8 +4068,36 @@ Next line of code. Get inside functions.
 
 
 <p><hr></p>
+<a name="gmi_exec_step_cnt"></a>
+<center><Font Size=+2>gmi_exec_step_cnt</Font> (prg_control.c 363)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ gmi_exec_step_cnt(mi_h *h, int count);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Next count lines of code. Get inside functions.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+!=0 OK
+<p>
+
+
+
+<p><hr></p>
 <a name="gmi_exec_step_instruction"></a>
-<center><Font Size=+2>gmi_exec_step_instruction</Font> (prg_control.c 334)</center>
+<center><Font Size=+2>gmi_exec_step_instruction</Font> (prg_control.c 379)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3723,7 +4125,7 @@ Next line of assembler code. Get inside calls.
 
 <p><hr></p>
 <a name="gmi_exec_until"></a>
-<center><Font Size=+2>gmi_exec_until</Font> (prg_control.c 351)</center>
+<center><Font Size=+2>gmi_exec_until</Font> (prg_control.c 396)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3751,8 +4153,36 @@ line.
 
 
 <p><hr></p>
+<a name="gmi_exec_until_addr"></a>
+<center><Font Size=+2>gmi_exec_until_addr</Font> (prg_control.c 412)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ gmi_exec_until_addr(mi_h *h, void *addr);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Execute until location is reached.
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+!=0 OK
+<p>
+
+
+
+<p><hr></p>
 <a name="gmi_exec_return"></a>
-<center><Font Size=+2>gmi_exec_return</Font> (prg_control.c 368)</center>
+<center><Font Size=+2>gmi_exec_return</Font> (prg_control.c 429)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -3781,7 +4211,7 @@ location. NULL on error.
 
 <p><hr></p>
 <a name="gmi_exec_kill"></a>
-<center><Font Size=+2>gmi_exec_kill</Font> (prg_control.c 386)</center>
+<center><Font Size=+2>gmi_exec_kill</Font> (prg_control.c 447)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4154,7 +4584,7 @@ Detach from an attached process.
 
 <p><hr></p>
 <a name="gmi_thread_list_ids"></a>
-<center><Font Size=+2>gmi_thread_list_ids</Font> (thread.c 46)</center>
+<center><Font Size=+2>gmi_thread_list_ids</Font> (thread.c 49)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4182,7 +4612,7 @@ List available thread ids.
 
 <p><hr></p>
 <a name="gmi_thread_select"></a>
-<center><Font Size=+2>gmi_thread_select</Font> (thread.c 62)</center>
+<center><Font Size=+2>gmi_thread_select</Font> (thread.c 65)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4209,8 +4639,37 @@ A new mi_frames or NULL on error.
 
 
 <p><hr></p>
+<a name="gmi_thread_list_all_threads"></a>
+<center><Font Size=+2>gmi_thread_list_all_threads</Font> (thread.c 82)</center>
+
+<Font Size=+1><u>Syntax</u></Font><p>
+
+
+
+<pre>
+ gmi_thread_list_all_threads(mi_h *h);
+</pre>
+
+
+
+
+<Font Size=+1><u>Description</u></Font><p>
+
+Get a list of frames for each available thread. Implemented using "info
+thread".
+<p>
+
+
+<Font Size=+1><u>Return Value</u></Font><p>
+
+A kist of frames, NULL on error
+<p>
+
+
+
+<p><hr></p>
 <a name="gmi_var_create_nm"></a>
-<center><Font Size=+2>gmi_var_create_nm</Font> (var_obj.c 119)</center>
+<center><Font Size=+2>gmi_var_create_nm</Font> (var_obj.c 122)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4239,7 +4698,7 @@ A new mi_gvar strcture or NULL on error.
 
 <p><hr></p>
 <a name="gmi_var_create"></a>
-<center><Font Size=+2>gmi_var_create</Font> (var_obj.c 136)</center>
+<center><Font Size=+2>gmi_var_create</Font> (var_obj.c 139)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4268,7 +4727,7 @@ A new mi_gvar strcture or NULL on error.
 
 <p><hr></p>
 <a name="gmi_var_delete"></a>
-<center><Font Size=+2>gmi_var_delete</Font> (var_obj.c 151)</center>
+<center><Font Size=+2>gmi_var_delete</Font> (var_obj.c 154)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4296,7 +4755,7 @@ Delete a variable object. Doesn't free the mi_gvar data.
 
 <p><hr></p>
 <a name="gmi_var_set_format"></a>
-<center><Font Size=+2>gmi_var_set_format</Font> (var_obj.c 167)</center>
+<center><Font Size=+2>gmi_var_set_format</Font> (var_obj.c 170)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4324,7 +4783,7 @@ Set the format used to represent the result.
 
 <p><hr></p>
 <a name="gmi_var_show_format"></a>
-<center><Font Size=+2>gmi_var_show_format</Font> (var_obj.c 188)</center>
+<center><Font Size=+2>gmi_var_show_format</Font> (var_obj.c 191)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4352,7 +4811,7 @@ Fill the format field with info from gdb.
 
 <p><hr></p>
 <a name="gmi_var_info_num_children"></a>
-<center><Font Size=+2>gmi_var_info_num_children</Font> (var_obj.c 204)</center>
+<center><Font Size=+2>gmi_var_info_num_children</Font> (var_obj.c 207)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4380,7 +4839,7 @@ Fill the numchild field with info from gdb.
 
 <p><hr></p>
 <a name="gmi_var_info_type"></a>
-<center><Font Size=+2>gmi_var_info_type</Font> (var_obj.c 220)</center>
+<center><Font Size=+2>gmi_var_info_type</Font> (var_obj.c 223)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4408,7 +4867,7 @@ Fill the type field with info from gdb.
 
 <p><hr></p>
 <a name="gmi_var_info_expression"></a>
-<center><Font Size=+2>gmi_var_info_expression</Font> (var_obj.c 237)</center>
+<center><Font Size=+2>gmi_var_info_expression</Font> (var_obj.c 240)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4437,7 +4896,7 @@ isn't filled during creation.
 
 <p><hr></p>
 <a name="gmi_var_show_attributes"></a>
-<center><Font Size=+2>gmi_var_show_attributes</Font> (var_obj.c 255)</center>
+<center><Font Size=+2>gmi_var_show_attributes</Font> (var_obj.c 258)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4466,7 +4925,7 @@ during creation.
 
 <p><hr></p>
 <a name="gmi_full_var_create"></a>
-<center><Font Size=+2>gmi_full_var_create</Font> (var_obj.c 272)</center>
+<center><Font Size=+2>gmi_full_var_create</Font> (var_obj.c 275)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4495,7 +4954,7 @@ A new mi_gvar strcture or NULL on error.
 
 <p><hr></p>
 <a name="gmi_var_update"></a>
-<center><Font Size=+2>gmi_var_update</Font> (var_obj.c 294)</center>
+<center><Font Size=+2>gmi_var_update</Font> (var_obj.c 297)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4524,7 +4983,7 @@ updated.
 
 <p><hr></p>
 <a name="gmi_var_assign"></a>
-<center><Font Size=+2>gmi_var_assign</Font> (var_obj.c 310)</center>
+<center><Font Size=+2>gmi_var_assign</Font> (var_obj.c 313)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4552,7 +5011,7 @@ Change variable. The new value replaces the @var{value} field.
 
 <p><hr></p>
 <a name="gmi_var_evaluate_expression"></a>
-<center><Font Size=+2>gmi_var_evaluate_expression</Font> (var_obj.c 334)</center>
+<center><Font Size=+2>gmi_var_evaluate_expression</Font> (var_obj.c 337)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
@@ -4580,7 +5039,7 @@ Fill the value field getting the current value for a variable.
 
 <p><hr></p>
 <a name="gmi_var_list_children"></a>
-<center><Font Size=+2>gmi_var_list_children</Font> (var_obj.c 359)</center>
+<center><Font Size=+2>gmi_var_list_children</Font> (var_obj.c 362)</center>
 
 <Font Size=+1><u>Syntax</u></Font><p>
 
