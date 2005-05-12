@@ -24,43 +24,7 @@ to my needs and changed license from giftware to GPL.@p
 
 #include "mi_gdb.h"
 
-#ifdef __APPLE__
-
-int mi_look_for_free_vt(int *master, char **slave)
-{
- int fdmaster;
- int fdslave;
- static char name[BUFSIZ];
-
- if (openpty(&fdmaster,&fdslave,name,NULL,NULL)<0)
-    return -1;
-
- (void)close(fdslave); /* this will be reopened by gdb */
- *master=fdmaster;
- *slave =name;
-
- return 0;
-}
-
-mi_aux_term *gmi_look_for_free_vt()
-{
- int master;
- char *slave;
- int vt=mi_look_for_free_vt(&master,&slave);
- mi_aux_term *res;
-
- if (vt<0)
-    return NULL;
- res=(mi_aux_term *)malloc(sizeof(mi_aux_term));
- if (!res)
-    return NULL;
- res->pid=-1;
- res->tty=strdup(slave);
- res->master=master;
- return res;
-}
-
-#elif !defined(__linux__)
+#if !defined(__linux__)
 
 int mi_look_for_free_vt()
 {
@@ -182,7 +146,6 @@ mi_aux_term *gmi_look_for_free_vt()
     return NULL;
  res->pid=-1;
  asprintf(&res->tty,"/dev/tty%d",vt);
- //asprintf(&res->master,"/dev/pty%d",vt);
  return res;
 }
 

@@ -1,4 +1,20 @@
-$Log$
+$Log$.
+Revision 1.28  2005/04/29 20:11:13  set
+* Applied patches from Greg Watson (gwatson/lanl/gov):
+  * Add pty support for Darwin, including extending the mi_aux_term
+    structure to include a file descriptor for the master side of the pty.
+    This allows the code to prevent a race condition between checking for a
+    free pty and opening it.
+  * Rename mi_get_sttoped() to mi_get_stopped() and expose the interface
+    in mi_gdb.h.
+  * Added new gmi_exec_next_cnt() and gmi_exec_stop_cnt() commands.
+  * Add support for the broken Darwin version of gdb (tuples can contain
+    values as well as results).
+  * Fix the 'signal-name' and 'signal-meaning' variable names (were
+    'signal_name' and 'signal_meaning').
+  * Allow a 'count' argument to be supplied to mi_exec_step() and
+    mi_exec_next().
+
 Revision 1.27  2004/12/06 15:51:04  set
 * Fixed: Compilations problems for SuSE 5.2. Reported by J.B. Lethbridge.
 

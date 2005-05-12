@@ -23,6 +23,8 @@ target_man.o: mi_gdb.h
 
 get_free_vt.o: mi_gdb.h
 
+get_free_pty.o: mi_gdb.h
+
 data_man.o: mi_gdb.h
 
 stack_man.o: mi_gdb.h
@@ -38,8 +40,8 @@ alloc.o: mi_gdb.h
 error.o: mi_gdb.h
 
 libmigdb.a: connect.o parse.o prg_control.o misc.o breakpoint.o target_man.o \
-	get_free_vt.o data_man.o stack_man.o symbol_query.o thread.o var_obj.o \
-	alloc.o error.o cpp_int.o
+	get_free_vt.o get_free_pty.o data_man.o stack_man.o symbol_query.o \
+	thread.o var_obj.o alloc.o error.o cpp_int.o
 	ar rcs $@ $^
 
 clean:

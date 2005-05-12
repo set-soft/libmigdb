@@ -1,6 +1,6 @@
 /**[txh]********************************************************************
 
-  Copyright (c) 2004 by Salvador E. Tropea.
+  Copyright (c) 2004-2005 by Salvador E. Tropea.
   Covered by the GPL license.
 
   Comments:
@@ -75,10 +75,10 @@ enum mi_val_type { t_const, t_tuple, t_list };
    name is for a psym instead of a sym. psym==partially loaded symbol table. */
 #define MI_PSYM_SEARCH    0
 
-#define MI_VERSION_STR "0.8.8"
+#define MI_VERSION_STR "0.8.9"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  8
+#define MI_VERSION_MINOR  9
 
 struct mi_results_struct
 {
@@ -218,9 +218,15 @@ struct mi_aux_term_struct
 {
  pid_t pid;
  char *tty;
- int master;
 };
 typedef struct mi_aux_term_struct mi_aux_term;
+
+struct mi_pty_struct
+{
+ char *slave;
+ int master;
+};
+typedef struct mi_pty_struct mi_pty;
 
 enum mi_gvar_fmt { fm_natural=0, fm_binary=1, fm_decimal=2, fm_hexadecimal=3,
                    fm_octal=4,
@@ -460,6 +466,10 @@ void gmi_end_aux_term(mi_aux_term *t);
 mi_aux_term *gmi_look_for_free_vt();
 /* Look for a free and usable Linux VT. */
 int mi_look_for_free_vt();
+/* Close master and release the structure. */
+void gmi_end_pty(mi_pty *p);
+/* Look for a free pseudo terminal. */
+mi_pty *gmi_look_for_free_pty();
 /* Extract a list of thread IDs from response. */
 int mi_res_thread_ids(mi_h *h, int **list);
 int mi_get_thread_ids(mi_output *res, int **list);
