@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     if (FD_ISSET(pty->master,&rfds))
       {
        int n=read(pty->master,buf,BUFSIZ);
-       if (n==0)
+       if (n<=0)
           break;
        write(1,buf,n);
       }
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
     if (FD_ISSET(0,&rfds))
       {
        int n=read(0,buf,BUFSIZ);
-       if (n==0)
+       if (n<=0)
           break;
        write(pty->master,buf,n);
       }

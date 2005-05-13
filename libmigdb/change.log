@@ -1,4 +1,8 @@
-$Log$
+$Log$.
+Revision 1.30  2005/05/12 20:23:02  set
+* Modified: Regenerated the docs to include the new documentation about
+ptys. Also changed the docs to name version 0.8.9.
+
 Revision 1.29  2005/05/12 20:18:56  set
 * Applied patches from Greg Watson (gwatson/lanl/gov):
   * Removes apple code from src/get_free_vt.c
