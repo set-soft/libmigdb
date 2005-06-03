@@ -1223,9 +1223,11 @@ mi_bkpt *mi_get_bkpt(mi_results *p)
        else if (strcmp(p->var,"disp")==0)
          {
           if (strcmp(p->v.cstr,"keep")==0)
-             res->type=d_keep;
+             res->disp=d_keep;
           else if (strcmp(p->v.cstr,"del")==0)
-             res->type=d_unknown;
+             res->disp=d_del;
+          else
+             res->disp=d_unknown;
          }
        else if (strcmp(p->var,"enabled")==0)
           res->enabled=p->v.cstr[0]=='y';

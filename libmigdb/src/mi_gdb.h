@@ -75,10 +75,10 @@ enum mi_val_type { t_const, t_tuple, t_list };
    name is for a psym instead of a sym. psym==partially loaded symbol table. */
 #define MI_PSYM_SEARCH    0
 
-#define MI_VERSION_STR "0.8.9"
+#define MI_VERSION_STR "0.8.10"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  9
+#define MI_VERSION_MINOR  10
 
 struct mi_results_struct
 {
