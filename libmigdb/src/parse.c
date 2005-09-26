@@ -679,7 +679,11 @@ mi_frames *mi_res_frames_array(mi_h *h, const char *var)
 
  if (!r)
     return NULL;
+#ifdef __APPLE__
+ if (r->type!=t_list && r->type!=t_tuple)
+#else
  if (r->type!=t_list)
+#endif
    {
     mi_free_results(r);
     return NULL;

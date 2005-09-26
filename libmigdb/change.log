@@ -1,4 +1,9 @@
-$Log$
+$Log$.
+Revision 1.32  2005/06/03 13:03:19  set
+* Fixed: Breakpoint parser filled the "type" field instead of the "disp"
+field. Patch by Max Kovalenko (madmax/botik/ru).
+* Modified: Version to 0.8.10.
+
 Revision 1.31  2005/05/13 19:29:54  set
 * Fixed: pty_test.c to also exit when read returns 0 (Linux case). Patch
 from Greg.
