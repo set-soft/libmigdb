@@ -1,4 +1,8 @@
-$Log$.
+$Log$
+Revision 1.33  2005/09/26 18:38:35  set
+* Fixed: Apple seem to have changed the output type for stack frames to be
+a tuple of tuples rather than a list of tuples. Patch from Greg.
+
 Revision 1.32  2005/06/03 13:03:19  set
 * Fixed: Breakpoint parser filled the "type" field instead of the "disp"
 field. Patch by Max Kovalenko (madmax/botik/ru).

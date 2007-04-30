@@ -636,7 +636,7 @@ mi_frames *mi_parse_frame(mi_results *c)
           if (strcmp(c->var,"level")==0)
              res->level=atoi(c->v.cstr);
           else if (strcmp(c->var,"addr")==0)
-             res->addr=(void *)strtol(c->v.cstr,&end,0);
+             res->addr=(void *)strtoul(c->v.cstr,&end,0);
           else if (strcmp(c->var,"func")==0)
             {
              res->func=c->v.cstr;
@@ -1236,7 +1236,7 @@ mi_bkpt *mi_get_bkpt(mi_results *p)
        else if (strcmp(p->var,"enabled")==0)
           res->enabled=p->v.cstr[0]=='y';
        else if (strcmp(p->var,"addr")==0)
-          res->addr=(void *)strtol(p->v.cstr,&end,0);
+          res->addr=(void *)strtoul(p->v.cstr,&end,0);
        else if (strcmp(p->var,"func")==0)
          {
           res->func=p->v.cstr;
@@ -1619,7 +1619,7 @@ mi_asm_insn *mi_parse_insn(mi_results *c)
           if (sub->type==t_const)
             {
              if (strcmp(sub->var,"address")==0)
-                cur->addr=(void *)strtol(sub->v.cstr,&end,0);
+                cur->addr=(void *)strtoul(sub->v.cstr,&end,0);
              else if (strcmp(sub->var,"func-name")==0)
                {
                 cur->func=sub->v.cstr;
