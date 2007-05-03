@@ -1,4 +1,8 @@
-$Log$
+$Log$.
+Revision 1.34  2007/04/30 16:43:49  set
+* Fixed: When parsing an address from gdb strtol isn't suitable, strtoul
+is better.
+
 Revision 1.33  2005/09/26 18:38:35  set
 * Fixed: Apple seem to have changed the output type for stack frames to be
 a tuple of tuples rather than a list of tuples. Patch from Greg.

@@ -1062,6 +1062,8 @@ MIDebugger::archType MIDebugger::GetTargetArchitecture()
        targetArch=arIA32;
     else if (strstr(end,"sparc"))
        targetArch=arSPARC;
+    else if (strstr(end,"pic14"))
+       targetArch=arPIC14;
     free(end);
    }
  return targetArch;
