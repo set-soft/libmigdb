@@ -16,8 +16,14 @@ gdb command:       Implemented?
 -gdb-version       Yes
 @</pre>
 
+GDB Bug workaround for "-gdb-show architecture": gdb 6.1 and olders doesn't
+report it in "value", but they give the output of "show architecture". In
+6.4 we observed that not even a clue is reported. So now we always use
+"show architecture".
+
 ***************************************************************************/
 
+#include <string.h>
 #include "mi_gdb.h"
 
 /* Low level versions. */
@@ -39,7 +45,10 @@ void mi_gdb_set(mi_h *h, const char *var, const char *val)
 
 void mi_gdb_show(mi_h *h, const char *var)
 {
- mi_send(h,"-gdb-show %s\n",var);
+ if (strcmp(var,"architecture")==0)
+    mi_send(h,"show %s\n",var);
+ else
+    mi_send(h,"-gdb-show %s\n",var);
 }
 
 /* High level versions. */

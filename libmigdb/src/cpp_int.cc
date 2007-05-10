@@ -1064,6 +1064,8 @@ MIDebugger::archType MIDebugger::GetTargetArchitecture()
        targetArch=arSPARC;
     else if (strstr(end,"pic14"))
        targetArch=arPIC14;
+    else if (strstr(end,"avr"))
+       targetArch=arAVR;
     free(end);
    }
  return targetArch;

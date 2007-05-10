@@ -1,4 +1,8 @@
-$Log$.
+$Log$
+Revision 1.35  2007/05/03 11:51:09  set
+* Added: pic14 architecture. That's for an in-circuit emulator that I'm
+developing.
+
 Revision 1.34  2007/04/30 16:43:49  set
 * Fixed: When parsing an address from gdb strtol isn't suitable, strtoul
 is better.

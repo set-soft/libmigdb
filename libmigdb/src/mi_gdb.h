@@ -715,7 +715,7 @@ public:
  enum dMode  { dmX11, dmLinux, dmRemote, dmPID };
  enum endianType { enUnknown, enLittle, enBig };
  // Currently tested architectures
- enum archType { arUnknown, arIA32, arSPARC, arPIC14, arUnsupported };
+ enum archType { arUnknown, arIA32, arSPARC, arPIC14, arAVR, arUnsupported };
 
  int Connect(bool remote=false); /* remote is currently ignored. */
  int Disconnect();
