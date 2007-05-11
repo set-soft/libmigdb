@@ -1,6 +1,6 @@
 /**[txh]********************************************************************
 
-  Copyright (c) 2004 by Salvador E. Tropea.
+  Copyright (c) 2004-2007 by Salvador E. Tropea.
   Covered by the GPL license.
 
   Module: Parser.
@@ -383,15 +383,21 @@ mi_output *mi_parse_asyn(mi_output *r,const char *str)
  r->type=MI_T_OUT_OF_BAND;
  r->stype=MI_ST_ASYNC;
  /* async-class. */
- if (strncmp(str,"stopped",7))
+ if (strncmp(str,"stopped",7)==0)
    {
-    mi_error=MI_UNKNOWN_ASYNC;
-    mi_free_output(r);
-    return NULL;
+    r->tclass=MI_CL_STOPPED;
+    str+=7;
+    return mi_get_results_alone(r,str);
    }
- r->tclass=MI_CL_STOPPED;
- str+=7;
- return mi_get_results_alone(r,str);
+ if (strncmp(str,"download",8)==0)
+   {
+    r->tclass=MI_CL_DOWNLOAD;
+    str+=8;
+    return mi_get_results_alone(r,str);
+   }
+ mi_error=MI_UNKNOWN_ASYNC;
+ mi_free_output(r);
+ return NULL;
 }
 
 mi_output *mi_parse_exec_asyn(mi_output *r,const char *str)

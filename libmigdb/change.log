@@ -1,4 +1,8 @@
-$Log$
+$Log$.
+Revision 1.36  2007/05/10 16:49:11  set
+* Added: AVR architecture.
+* Added: Workaround for bugs in -gdb-show architecture. Seen on gdb 6.4.x.
+
 Revision 1.35  2007/05/03 11:51:09  set
 * Added: pic14 architecture. That's for an in-circuit emulator that I'm
 developing.

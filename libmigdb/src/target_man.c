@@ -1,6 +1,6 @@
 /**[txh]********************************************************************
 
-  Copyright (c) 2004 by Salvador E. Tropea.
+  Copyright (c) 2004-2007 by Salvador E. Tropea.
   Covered by the GPL license.
 
   Module: Target manipulation.
@@ -11,7 +11,7 @@
 -target-attach                  Yes (implemented using attach)
 -target-compare-sections        N.A. (compare-sections)
 -target-detach                  Yes
--target-download                No
+-target-download                Yes
 -target-exec-status             N.A.
 -target-list-available-targets  N.A. (help target)
 -target-list-current-targets    N.A. (info file among other things)
@@ -39,6 +39,11 @@ void mi_target_attach(mi_h *h, pid_t pid)
 void mi_target_detach(mi_h *h)
 {
  mi_send(h,"-target-detach\n");
+}
+
+void mi_target_download(mi_h *h)
+{
+ mi_send(h,"-target-download\n");
 }
 
 /* High level versions. */
@@ -92,4 +97,20 @@ int gmi_target_detach(mi_h *h)
  return mi_res_simple_done(h);
 }
 
+/**[txh]********************************************************************
+
+  Description:
+  Loads the executable onto the remote target.
+
+  Command: -target-download
+  Return: !=0 OK
+  
+***************************************************************************/
+
+int gmi_target_download(mi_h *h)
+{
+ mi_target_download(h);
+ // TODO: this response have some data
+ return mi_res_simple_done(h);
+}
 

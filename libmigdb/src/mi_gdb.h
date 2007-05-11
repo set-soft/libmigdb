@@ -1,6 +1,6 @@
 /**[txh]********************************************************************
 
-  Copyright (c) 2004-2005 by Salvador E. Tropea.
+  Copyright (c) 2004-2007 by Salvador E. Tropea.
   Covered by the GPL license.
 
   Comments:
@@ -58,6 +58,7 @@ enum mi_val_type { t_const, t_tuple, t_list };
 /* Async classes. */
 #define MI_CL_UNKNOWN      0
 #define MI_CL_STOPPED      1
+#define MI_CL_DOWNLOAD     2
 /* Result classes. */
 #define MI_CL_DONE         2
 #define MI_CL_RUNNING      3
@@ -499,6 +500,7 @@ int mi_get_list_registers_l(mi_h *h, mi_chg_reg *l);
 mi_chg_reg *mi_get_list_changed_regs(mi_h *h);
 int mi_get_reg_values(mi_h *h, mi_chg_reg *l);
 mi_chg_reg *mi_get_reg_values_l(mi_h *h, int *how_many);
+int gmi_target_download(mi_h *h);
 
 /* Allocation functions: */
 void *mi_calloc(size_t count, size_t sz);
@@ -725,7 +727,7 @@ public:
  int SelectTargetLinux(const char *exec, const char *args,
                        const char *auxtty=NULL);
  int SelectTargetRemote(const char *exec, const char *rparams,
-                        const char *rtype=NULL);
+                        const char *rtype=NULL, bool download=false);
  // TODO: Linux PIDs can be represented as intergers. What should I use?
  // ato_pid_t doesn't exist ;-)
  mi_frames *SelectTargetPID(const char *exec, int pid);

@@ -1,6 +1,6 @@
 /**[txh]********************************************************************
 
-  Copyright (c) 2004 by Salvador E. Tropea.
+  Copyright (c) 2004-2007 by Salvador E. Tropea.
   Covered by the GPL license.
 
   Module: C++ Interface.
@@ -228,7 +228,7 @@ program starts running. The @x{::Run} member knows about it.
 ***************************************************************************/
 
 int MIDebugger::SelectTargetRemote(const char *exec, const char *rparams,
-                                   const char *rtype)
+                                   const char *rtype, bool download)
 {
  if (state!=connected)
     return 0;
@@ -241,8 +241,18 @@ int MIDebugger::SelectTargetRemote(const char *exec, const char *rparams,
     rtype="extended-remote";
 
  /* Tell gdb to load symbols from the local copy. */
- if (!gmi_file_symbol_file(h,exec) || !gmi_target_select(h,rtype,rparams))
+ int res=download ? gmi_set_exec(h,exec,NULL) : gmi_file_symbol_file(h,exec);
+ if (!res)
     return 0;
+ /* Select the target */
+ if (!gmi_target_select(h,rtype,rparams))
+    return 0;
+ /* Download the binary */
+ if (download)
+   {
+    if (!gmi_target_download(h))
+       return 0;
+   }
 
  state=target_specified;
  return 1;
