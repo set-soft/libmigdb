@@ -76,10 +76,10 @@ enum mi_val_type { t_const, t_tuple, t_list };
    name is for a psym instead of a sym. psym==partially loaded symbol table. */
 #define MI_PSYM_SEARCH    0
 
-#define MI_VERSION_STR "0.8.10"
+#define MI_VERSION_STR "0.8.11"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  10
+#define MI_VERSION_MINOR  11
 
 struct mi_results_struct
 {
@@ -206,6 +206,7 @@ struct mi_frames_struct
  void *addr; /* The `$pc' value for that frame. */
  char *func; /* Function name. */
  char *file; /* File name of the source file where the function lives. */
+ char *from;
  int line;   /* Line number corresponding to the `$pc'. */
  /* When arguments are available: */
  mi_results *args;

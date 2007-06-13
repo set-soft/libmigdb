@@ -1,4 +1,11 @@
-$Log$.
+$Log$
+Revision 1.37  2007/05/11 14:16:24  set
+* Added: Implementation of the -target-download command, used to download
+a binary to the remote target.
+* Added: An option to MIDebugger::SelectTargetRemote used to load the
+binary to the remote target. Useful for embedded systems, tested with
+avr-gdb.
+
 Revision 1.36  2007/05/10 16:49:11  set
 * Added: AVR architecture.
 * Added: Workaround for bugs in -gdb-show architecture. Seen on gdb 6.4.x.

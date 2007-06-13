@@ -653,6 +653,11 @@ mi_frames *mi_parse_frame(mi_results *c)
              res->file=c->v.cstr;
              c->v.cstr=NULL;
             }
+          else if (strcmp(c->var,"from")==0)
+            {
+             res->from=c->v.cstr;
+             c->v.cstr=NULL;
+            }
           else if (strcmp(c->var,"line")==0)
              res->line=atoi(c->v.cstr);
          }

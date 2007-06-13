@@ -11,4 +11,5 @@ libmigdb/GPL-license
 libmigdb/Makefile
 libmigdb/README
 libmigdb/compress.sh
+libmigdb/version.c
 libmigdb/change.log

@@ -1,3 +1,4 @@
 #!/bin/sh
+gcc -o version version.c
 cd ..
-tar jcvf libmigdb-0.8.10.tar.bz2 `cat libmigdb/files`
+tar jcvf libmigdb-`libmigdb/version`.tar.bz2 `cat libmigdb/files`
