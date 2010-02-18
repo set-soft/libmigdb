@@ -2,6 +2,7 @@ libmigdb/doc/*.frt
 libmigdb/doc/*.html
 libmigdb/examples/Makefile
 libmigdb/examples/*.c*
+libmigdb/examples/cmds.txt
 libmigdb/src/Makefile
 libmigdb/src/*.c*
 libmigdb/src/*.h
