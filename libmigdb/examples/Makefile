@@ -7,6 +7,8 @@ CFLAGS=-O0 -Wall -gstabs+3 -I../src
 CXXFLAGS=-O0 -Wall -gstabs+3 -I../src
 LDLIBS=
 
+ticepic: ticepic.c ../src/libmigdb.a
+
 x11_test: x11_test.c ../src/libmigdb.a
 
 x11_cpp_test: x11_cpp_test.cc ../src/libmigdb.a

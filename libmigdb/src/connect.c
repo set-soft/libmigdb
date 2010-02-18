@@ -1,6 +1,6 @@
 /**[txh]********************************************************************
 
-  Copyright (c) 2004 by Salvador E. Tropea.
+  Copyright (c) 2004-2009 by Salvador E. Tropea.
   Covered by the GPL license.
 
   Module: Connect.
@@ -41,6 +41,8 @@ int mi_error=MI_OK;
 char *mi_error_from_gdb=NULL;
 static char *gdb_exe=NULL;
 static char *xterm_exe=NULL;
+static char *gdb_start=NULL;
+static char *gdb_conn=NULL;
 static char *main_func=NULL;
 static char  disable_psym_search_workaround=0;
 
@@ -319,6 +321,34 @@ mi_output *mi_get_response_blk(mi_h *h)
  return NULL;
 }
 
+void mi_send_commands(mi_h *h, const char *file)
+{
+ FILE *f;
+ char b[PATH_MAX];
+
+ //printf("File: %s\n",file);
+ if (!file)
+    return;
+ f=fopen(file,"rt");
+ if (!f)
+    return;
+ while (!feof(f))
+   {
+    if (fgets(b,PATH_MAX,f))
+      {
+       //printf("Send: %s\n",b);
+       mi_send(h,b);
+       mi_res_simple_done(h);
+      }
+   }
+ fclose(f);
+}
+
+void mi_send_target_commands(mi_h *h)
+{
+ mi_send_commands(h,gdb_conn);
+}
+
 /**[txh]********************************************************************
 
   Description:
@@ -398,6 +428,8 @@ mi_h *mi_connect_local()
    }
  /* Wait for the prompt. */
  mi_get_response_blk(h);
+ /* Send the start-up commands */
+ mi_send_commands(h,gdb_start);
 
  return h;
 }
@@ -544,6 +576,10 @@ void mi_clean_up_globals()
  gdb_exe=NULL;
  free(xterm_exe);
  xterm_exe=NULL;
+ free(gdb_start);
+ gdb_start=NULL;
+ free(gdb_conn);
+ gdb_conn=NULL;
  free(main_func);
  main_func=NULL;
 }
@@ -562,6 +598,20 @@ void mi_set_gdb_exe(const char *name)
 {
  free(gdb_exe);
  gdb_exe=name ? strdup(name) : NULL;
+ mi_register_exit();
+}
+
+void mi_set_gdb_start(const char *name)
+{
+ free(gdb_start);
+ gdb_start=name ? strdup(name) : NULL;
+ mi_register_exit();
+}
+
+void mi_set_gdb_conn(const char *name)
+{
+ free(gdb_conn);
+ gdb_conn=name ? strdup(name) : NULL;
  mi_register_exit();
 }
 
@@ -602,6 +652,16 @@ const char *mi_get_gdb_exe()
        return "/usr/bin/gdb";
    }
  return gdb_exe;
+}
+
+const char *mi_get_gdb_start()
+{
+ return gdb_start;
+}
+
+const char *mi_get_gdb_conn()
+{
+ return gdb_conn;
 }
 
 void mi_set_xterm_exe(const char *name)

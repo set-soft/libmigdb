@@ -95,6 +95,8 @@ int main(int argc, char *argv[])
  //MIDebugger::SetGDBExe("/usr/src/gdb-6.1.1/gdb/gdb");
  // You can use a terminal different than xterm:
  //MIDebugger::SetXTerm("/usr/bin/Eterm");
+ // You can specify commands for gdb
+ MIDebugger::SetGDBStartFile("cmds.txt");
 
  // Connect to gdb child.
  if (!d.Connect())

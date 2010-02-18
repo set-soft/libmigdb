@@ -1,6 +1,6 @@
 /**[txh]********************************************************************
 
-  Copyright (c) 2004-2007 by Salvador E. Tropea.
+  Copyright (c) 2004-2009 by Salvador E. Tropea.
   Covered by the GPL license.
 
   Comments:
@@ -76,10 +76,10 @@ enum mi_val_type { t_const, t_tuple, t_list };
    name is for a psym instead of a sym. psym==partially loaded symbol table. */
 #define MI_PSYM_SEARCH    0
 
-#define MI_VERSION_STR "0.8.11"
+#define MI_VERSION_STR "0.8.12"
 #define MI_VERSION_MAJOR  0
 #define MI_VERSION_MIDDLE 8
-#define MI_VERSION_MINOR  11
+#define MI_VERSION_MINOR  12
 
 struct mi_results_struct
 {
@@ -396,6 +396,13 @@ const char *mi_get_error_str();
 /* Indicate the name of gdb exe. Default is /usr/bin/gdb */
 void mi_set_gdb_exe(const char *name);
 const char *mi_get_gdb_exe();
+/* Indicate the name of a file containing commands to send at start-up */
+void mi_set_gdb_start(const char *name);
+const char *mi_get_gdb_start();
+/* Indicate the name of a file containing commands to send after connection */
+void mi_set_gdb_conn(const char *name);
+const char *mi_get_gdb_conn();
+void mi_send_target_commands(mi_h *h);
 /* Connect to a local copy of gdb. */
 mi_h *mi_connect_local();
 /* Close connection. You should ask gdb to quit first. */
@@ -914,6 +921,10 @@ public:
  static const char *GetGDBExe() { return mi_get_gdb_exe(); }
  static void SetXTermExe(const char *name) { mi_set_xterm_exe(name); }
  static const char *GetXTermExe() { return mi_get_xterm_exe(); }
+ static void SetGDBStartFile(const char *name) { mi_set_gdb_start(name); }
+ static const char *GetGDBStartFile() { return mi_get_gdb_start(); }
+ static void SetGDBConnFile(const char *name) { mi_set_gdb_conn(name); }
+ static const char *GetGDBConnFile() { return mi_get_gdb_conn(); }
  static void SetMainFunc(const char *name) { mi_set_main_func(name); }
  static const char *GetMainFunc() { return mi_get_main_func(); }
 

@@ -61,7 +61,10 @@ void mi_target_download(mi_h *h)
 int gmi_target_select(mi_h *h, const char *type, const char *params)
 {
  mi_target_select(h,type,params);
- return mi_res_simple_connected(h);
+ if (!mi_res_simple_connected(h))
+    return 0;
+ mi_send_target_commands(h);
+ return 1;
 }
 
 /**[txh]********************************************************************

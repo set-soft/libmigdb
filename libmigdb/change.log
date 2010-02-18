@@ -1,4 +1,9 @@
-$Log$
+$Log$.
+Revision 1.38  2007/06/13 12:26:47  set
+* Added: "from" field to the mi_frames structure. Suggested by Val Greene
+(vgreene/SF).
+* Modified: Version to 0.8.11.
+
 Revision 1.37  2007/05/11 14:16:24  set
 * Added: Implementation of the -target-download command, used to download
 a binary to the remote target.

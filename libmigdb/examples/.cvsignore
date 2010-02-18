@@ -10,3 +10,6 @@ x11_cpp_test
 target_frames
 x11_fr_test
 pty_test
+ticepic
+*.cod
+*.lst
