@@ -151,8 +151,11 @@ int mi_getline(mi_h *h)
        h->lread=0;
        return ret;
       }
-    h->line[h->lread]=c;
-    h->lread++;
+    if (c!='\r')
+      {
+       h->line[h->lread]=c;
+       h->lread++;
+      }
    }
  return 0;
 }
