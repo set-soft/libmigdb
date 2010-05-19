@@ -67,7 +67,7 @@ can say it won't change we must use the CLI command.
 void mi_file_exec_and_symbols(mi_h *h, const char *file)
 {
  if (mi_get_workaround(MI_PSYM_SEARCH))
-    mi_send(h,"file %s -readnow\n",file);
+    mi_send(h,"file -readnow %s\n",file);
  else
     mi_send(h,"-file-exec-and-symbols %s\n",file);
 }
@@ -95,7 +95,7 @@ void mi_target_terminal(mi_h *h, const char *tty_name)
 void mi_file_symbol_file(mi_h *h, const char *file)
 {
  if (mi_get_workaround(MI_PSYM_SEARCH))
-    mi_send(h,"symbol-file %s -readnow\n",file);
+    mi_send(h,"symbol-file -readnow %s\n",file);
  else
     mi_send(h,"-file-symbol-file %s\n",file);
 }
