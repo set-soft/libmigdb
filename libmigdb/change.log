@@ -1,4 +1,16 @@
-$Log$.
+$Log$
+Revision 1.39  2010/02/18 13:18:05  set
+* Added: [ticepic.c examples/Makefile] Example of how to use something
+different than gdb.
+* Added: [x11_cpp_test.cc cmds.txt] Example of how to specify an starting
+commands file.
+* Added: [connect.c mi_gdb.h] Functionality to indicate a file containing
+commands to be executed at start-up and after connection.
+* Modified: [mi_gdb.h] Version to 0.8.12.
+* Fixed: [target_man.c] Return value for gmi_target_select.
+* Added: [.cvsignore] version executable exclusion.
+* Added: [examples/.cvsignore] ticepic binary exclusion.
+
 Revision 1.38  2007/06/13 12:26:47  set
 * Added: "from" field to the mi_frames structure. Suggested by Val Greene
 (vgreene/SF).
