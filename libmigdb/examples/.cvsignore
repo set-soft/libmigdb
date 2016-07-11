@@ -11,5 +11,6 @@ target_frames
 x11_fr_test
 pty_test
 ticepic
+icepic
 *.cod
 *.lst
