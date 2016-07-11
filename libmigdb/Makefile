@@ -9,6 +9,8 @@ libmigdb:
 
 clean:
 	$(MAKE) -C src clean
+	$(MAKE) -C examples clean
+	-@rm version
 
 install:
 	$(MAKE) -C src install
