@@ -45,7 +45,7 @@ libmigdb.a: connect.o parse.o prg_control.o misc.o breakpoint.o target_man.o \
 	ar rcs $@ $^
 
 clean:
-	-@rm *.o *.a 2> /dev/null
+	-@rm *.o *.a .*~ 2> /dev/null
 
 install:
 	install -d -m 755 $(PREFIX)/lib
