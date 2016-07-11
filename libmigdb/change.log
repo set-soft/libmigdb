@@ -1,4 +1,10 @@
-$Log$
+$Log$.
+Revision 1.40  2010/05/19 19:30:23  set
+* Modified: [connect.c] To ignore \r characters from gdb. Markus Huebenthal
+saw them using gdb 6.8.
+* Modified: [prg_control.c] -readnow vs file name order. Don't remmember
+who pointed-out it.
+
 Revision 1.39  2010/02/18 13:18:05  set
 * Added: [ticepic.c examples/Makefile] Example of how to use something
 different than gdb.
